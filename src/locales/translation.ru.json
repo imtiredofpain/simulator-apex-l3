@@ -1,0 +1,417 @@
+{
+  "signIn": {
+    "title": "Вход в систему",
+    "description": "Войдите в свою учетную запись",
+    "login": "Логин",
+    "password": "Пароль",
+    "submit": "Авторизоваться",
+    "forgotPassword": "Забыли пароль?",
+    "otherAccounts": "Если у вас есть другие учетные записи",
+    "loginWithApple": "Войти с Apple",
+    "loginWithGithub": "Войти с GitHub",
+    "loginWithGoogle": "Войти с Google",
+    "loginWithVk": "Войти с VK",
+    "noAccount": "Еще нет учетной записи?",
+    "error": {
+      "loginRequired": "Укажите логин",
+      "loginInvalid": "Некорректный логин",
+      "passwordRequired": "Введите пароль",
+      "passwordMinLength": "Пароль должен быть не короче 6 символов",
+      "serverError": "Ошибка соединения с сервером. Попробуйте снова.",
+      "loginFailed": "Ошибка авторизации. Проверьте логин или пароль."
+    }
+  },
+  "tags": {
+    "position": "позиция",
+    "blur": "размытие",
+    "spread": "растушёвка",
+    "color": "цвет",
+    "width": "ширина",
+    "height": "высота",
+    "radius": "радиус",
+    "padding": "внутренний отступ",
+    "clip": "обрезка",
+    "progress": "прогресс",
+    "note": "заметка"
+  },
+  "settings": {
+    "search": {
+      "placeholder": "Поиск настроек...",
+      "noResults": "Ничего не найдено"
+    },
+    "sidebar": {
+      "syncStatus": "Ожидающих синхронизации:"
+    },
+    "profile": {
+      "title": "Профиль",
+      "tags": {
+        "profile": "профиль",
+        "personal": "личные данные"
+      }
+    },
+    "manufacture": {
+      "title": "Производство",
+      "tags": {
+        "global": "Глобальное"
+      },
+      "lines": {
+        "onlyTasks": "Только с заданиями",
+        "allLines": "Все линии",
+        "none": "Не показывать",
+        "items": {
+          "sideLong": "Режим отображения линий",
+          "sideLong.description": "Определяет логику формирования списка линий в боковом меню"
+        }
+      }
+    },
+    "lines": {
+      "title": "Линии"
+    },
+    "general": {
+      "title": "Основные настройки",
+      "reports": {
+        "items": {
+          "defaultTabActive": "Отчеты"
+        }
+      },
+      "performance": {
+        "title": "Производительность",
+        "tags": {
+          "performance": "Производительность",
+          "cpu": "Процессор",
+          "system": "Система"
+        },
+        "items": {
+          "powerSavingMode": "Энергосберегающий режим",
+          "limitHistory": "Ограничение истории",
+          "openInFullscreenOnStartup": "Открывать в полноэкранном режиме при запуске",
+          "countItemsLogs": "Количество элементов в логах"
+        }
+      },
+      "quickTimeRangePresets": {
+        "title": "Удобство работы",
+        "tags": {
+          "usability": "удобство",
+          "speed": "скорость работы",
+          "time": "диапазон времени"
+        },
+        "items": {
+          "showTimeRangeQuickPresets": "Показывать быстрые пресеты",
+          "showTimeRangeQuickPresetsDescription": "Показывать быстрые пресеты в поле выбора диапазона времени. При включении отображаются только первые 4 пресета списка.",
+          "tableDensityMode": "Режим отображения таблиц"
+        }
+      },
+      "color": {
+        "title": "Цвет",
+        "items": {
+          "colorFormat": "Формат цвета",
+          "includeAlpha": "Альфа-канал",
+          "uppercaseHex": "HEX в верхнем регистре",
+          "includeHash": "Добавлять # в HEX при копировании"
+        }
+      },
+      "guides": {
+        "title": "Направляющие",
+        "items": {
+          "guideSnapEnabled": "Прилипание направляющих",
+          "dots": "Точки"
+        }
+      },
+      "unitsAndFormats": {
+        "title": "Единицы и форматы",
+        "items": {
+          "lengthUnit": "Единицы длины",
+          "angleUnit": "Единицы углов",
+          "numericPrecision": "Точность чисел",
+          "subpixelRounding": "Округление субпикселей"
+        }
+      }
+    },
+    "pen": {
+      "title": "Перо",
+      "tags": {
+        "global": "глобальные",
+        "input": "ввод",
+        "stylus": "стилус"
+      },
+      "defaults": {
+        "title": "По умолчанию",
+        "items": {
+          "penBaseWidth": "Базовая толщина линии"
+        },
+        "width": {
+          "thin": "Тонкая",
+          "medium": "Средняя",
+          "thick": "Толстая"
+        }
+      },
+      "width": {
+        "thin": "Тонкая",
+        "medium": "Средняя",
+        "thick": "Толстая"
+      },
+      "curve": {
+        "linear": "Линейная",
+        "soft": "Мягкая",
+        "hard": "Жёсткая"
+      },
+      "resample": {
+        "1": "1 px",
+        "1_5": "1.5 px",
+        "2": "2 px"
+      },
+      "render": {
+        "immediate": "Немедленно",
+        "raf": "Раз в кадр (requestAnimationFrame)"
+      },
+      "undo": {
+        "50": "50 шагов",
+        "200": "200 шагов",
+        "500": "500 шагов"
+      },
+      "pressure": {
+        "title": "Давление",
+        "items": {
+          "penPressureMode": "Чувствительность к давлению",
+          "penPressureCurve": "Кривая отклика"
+        },
+        "normal": "Нормальная",
+        "high": "Высокая",
+        "curve": {
+          "linear": "Линейная",
+          "soft": "Мягкая",
+          "hard": "Жёсткая"
+        }
+      },
+      "smoothing": {
+        "title": "Сглаживание",
+        "items": {
+          "penSmoothing": "Уровень сглаживания",
+          "penResampleStep": "Шаг ресэмплинга"
+        },
+        "resample": {
+          "1": "1 px",
+          "1_5": "1.5 px",
+          "2": "2 px"
+        }
+      },
+      "input": {
+        "title": "Ввод",
+        "items": {
+          "penPointerRawUpdate": "Использовать pointerrawupdate",
+          "penPreferStylusOverTouch": "Приоритет пера над касаниями",
+          "penStylusOnlyMode": "Режим только пера"
+        }
+      },
+      "performance": {
+        "title": "Производительность",
+        "items": {
+          "penRenderMode": "Режим отрисовки",
+          "penUndoLimit": "Лимит шагов отмены"
+        },
+        "render": {
+          "immediate": "Немедленно",
+          "raf": "Раз в кадр (requestAnimationFrame)"
+        },
+        "undo": {
+          "50": "50 шагов",
+          "200": "200 шагов",
+          "500": "500 шагов"
+        }
+      }
+    },
+    "security": {
+      "title": "Безопасность",
+      "metricks": {
+        "title": "Сбор метрики и статистики",
+        "items": {
+          "switchMetricks": "Сбор метрики по использованию приложения",
+          "switchErrors": "Сбор статистики об ошибках"
+        }
+      },
+      "network": {
+        "title": "Сеть",
+        "items": {
+          "proxyExternalImages": "Открывать внешние изображения через прокси"
+        }
+      }
+    },
+    "appearance": {
+      "title": "Оформление",
+      "theme": {
+        "title": "Внешний вид",
+        "items": {
+          "theme": "Тема интерфейса"
+        },
+        "light": "Светлая",
+        "dark": "Тёмная",
+        "system": "Системная",
+        "lightDesc": "Удобна в дневном режиме",
+        "darkDesc": "Удобна в ночном режиме",
+        "systemDesc": "Автоматически подстраивается под систему"
+      },
+      "menu": {
+        "title": "Меню",
+        "items": {
+          "minimizeSideBar": "Развернуть боковое меню"
+        }
+      },
+      "cursor": {
+        "title": "Курсор",
+        "items": {
+          "useSystemCursor": "Системный курсор",
+          "smoothCursor": "Плавный курсор"
+        }
+      },
+      "universalAccessibility": {
+        "title": "Доступность",
+        "items": {
+          "switchLabel": "Этикетки",
+          "zoomFactor": "Масштаб приложения",
+          "defaultCursor": "Системный курсор",
+          "smoothCursor": "Плавный курсор"
+        }
+      }
+    },
+    "about": {
+      "title": "О приложении"
+    },
+    "notifications": {
+      "title": "Уведомления",
+      "scriptIssues": {
+        "title": "Проблемы со скриптами",
+        "items": {
+          "scriptIssuesNotifications": "Уведомления о проблемах со скриптами"
+        }
+      },
+      "developerEmailing": {
+        "title": "Новости от разработчиков",
+        "items": {
+          "developerEmailingNotifications": "Получайте новости об используемых скриптах"
+        }
+      },
+      "monitoring": {
+        "title": "Мониторинг",
+        "items": {
+          "monitoringAlerts": "Оповещения о сбоях в работе"
+        }
+      },
+      "billing": {
+        "title": "Оплата",
+        "items": {
+          "billingNotifications": "Уведомления о балансе"
+        }
+      },
+      "usage": {
+        "title": "Использование",
+        "items": {
+          "usageAnomalyNotifications": "Оповещения о необычной активности"
+        }
+      },
+      "scriptDevelopment": {
+        "title": "Разработка скриптов",
+        "items": {
+          "scriptDevelopmentNotifications": "Ежемесячный отчёт о скриптах"
+        }
+      },
+      "scheduledRuns": {
+        "title": "Запланированные задачи",
+        "items": {
+          "scheduledRunsNotifications": "Оповещения о сбоях запланированных задач"
+        }
+      },
+      "integrations": {
+        "title": "Интеграции",
+        "items": {
+          "integrationFailureNotifications": "Оповещения о сбоях интеграций"
+        }
+      },
+      "otherEmailCommunication": {
+        "title": "Прочие уведомления",
+        "items": {
+          "emailCommunicationPreferences": "Настройки прочих уведомлений"
+        }
+      }
+    },
+    "common": {
+      "tabs": {
+        "info": "Общая информация",
+        "history": "История"
+      },
+      "all": "Все",
+      "hex": "HEX",
+      "rgb": "RGB",
+      "hsl": "HSL",
+      "lab": "Lab",
+      "lch": "LCH",
+      "oklab": "OKLab",
+      "oklch": "OKLCH",
+      "px": "Пиксели",
+      "pt": "Пункты",
+      "in": "Дюймы",
+      "cm": "Сантиметры",
+      "mm": "Миллиметры",
+      "deg": "Градусы",
+      "rad": "Радианы",
+      "grad": "Грады",
+      "turn": "Обороты",
+      "precision0": "0 знаков",
+      "precision1": "1 знак",
+      "precision2": "2 знака",
+      "precision3": "3 знака",
+      "none": "Нет",
+      "round": "Округлять",
+      "floor": "Вниз",
+      "ceil": "Вверх",
+      "auto": "Авто",
+      "email": "Электронная почта",
+      "web": "В приложении",
+      "on": "Включено",
+      "off": "Выключено",
+      "low": "Низкий",
+      "medium": "Средний",
+      "high": "Высокий",
+      "50": "50 записей",
+      "100": "100 записей",
+      "200": "200 записей",
+      "300": "300 записей",
+      "500": "500 записей",
+      "1k": "1 000 записей",
+      "10k": "10 000 записей",
+      "dots": "Точки",
+      "grid": "Сетка",
+      "cross": "Крест",
+      "tableDensityComfortable": "Обычный",
+      "tableDensityCompact": "Компактный"
+    }
+  },
+  "auth": {
+    "notLoggedInTitle": "Не авторизованы"
+  },
+  "keys": {
+    "PlannedQuantity": "Планируемое количество",
+    "ProductionTimeSettings": {
+      "FixedProductionDate": "FixedProductionDate"
+    }
+  },
+  "errors": {
+    "ProductionTimeOffset must be in format HH:mm:ss (e.g., \u002700:15:00\u0027)": "ProductionTimeOffset должен быть в формате HH:mm:ss (например, \u002700:15:00\u0027)",
+    "FixedProductionDate is required when CalculationMethod is Fixed": "Поле FixedProductionDate обязательно для заполнения, когда CalculationMethod = Fixed",
+    "ProductionTimeOffset is required": "Поле ProductionTimeOffset обязательно для заполнения",
+    "PlannedQuantity must be greater than 0": "Планируемое количество должно быть больше 0",
+    "Package not allow in job type": "Упаковка не разрешена в данном типе задания",
+    "Can't update line. Task is started": "Невозможно обновить линию. Запущено задание",
+    "Can't delete task. Task is started": "Невозможно удалить задание, так как оно запущено",
+    "tasks": {
+      "deleted": "Задание удалено",
+      "deleteFailed": "Не удалось удалить задание"
+    },
+    "Request failed with status code 404": "Кажется, что-то пошло не так и мы не можем обработать ваш запрос! Статус код: 404",
+    "LineCode must be unique": "Код линии должен быть уникальным",
+    "Can't update device. Task is started": "Невозможно обновить устройство. Запущено задание",
+    "Can't delete node. Task is started": "Невозможно удалить узел. Запущено задание",
+    "Can't delete device. Task is started": "Невозможно удалить устройство. Запущено задание",
+    "Can't start task. Device shutdown": "Невозможно запустить задание. Устройства недоступны!",
+    "Can't start task. Task is unable to pause": "Невозможно запустить задание. Задание не может быть приостановлено"
+  }
+}

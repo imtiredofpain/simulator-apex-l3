@@ -1,0 +1,36 @@
+.container {
+  pointer-events: none;
+  transform-origin: center top;
+  display: block;
+  position: absolute;
+  top: 0px;
+  left: 0px;
+  width: 100%;
+  height: 160%;
+  z-index: -1;
+  background-image: linear-gradient(0deg, rgba(0, 0, 0, 0), rgb(0, 0, 0));
+  transform-origin: center;
+}
+
+.wrapper {
+  position: relative;
+  z-index: 0;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(to bottom,
+      rgb(from transparent r g b / alpha) 0%,
+      rgb(from transparent r g b / 0%) 100%)
+}
+.blur {
+  position: absolute;
+  inset: 0px;
+}
+.gradient {
+  position: absolute;
+  height: 100%;
+  width: 100%;
+  top: 0;
+  left: 0;
+  z-index: 9;
+  pointer-events: none;
+}
