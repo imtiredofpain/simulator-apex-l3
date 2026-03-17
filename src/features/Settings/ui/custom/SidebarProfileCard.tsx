@@ -8,7 +8,7 @@ import {
   AvatarImage,
 } from '@shared/components/ui/avatar';
 import useMe from '@features/Users/hooks/useMe';
-import LogoME from '@assets/logos/ME_logo_icon.svg';
+import LogoME from '@assets/logos/apex_logo.svg';
 import { UserRoundX } from 'lucide-react';
 import { Skeleton } from '@shared/components/ui/skeleton';
 

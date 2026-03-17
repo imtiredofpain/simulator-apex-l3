@@ -1,5 +1,6 @@
 import {
   ClipboardList,
+  Code,
   Group,
   LogsIcon,
   Package,
@@ -47,6 +48,11 @@ export const sidebarMenuConfig: {
       title: "ApiLogs",
       icon: LogsIcon,
       to: PATHS.apiLogs.main,
+    },
+    {
+      title: "Генерация кодов",
+      icon: Code,
+      to: PATHS.codeGeneration.main,
     },
   ],
   groups: [

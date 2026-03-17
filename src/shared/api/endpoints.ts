@@ -13,6 +13,7 @@ import { tasksEndpoints } from "@features/Tasks";
 import { materialsEndpoints } from "@features/Materials";
 import { documentsEndpoints } from "@features/Reports";
 import { packsEndpoints } from "@features/Packs";
+import { codeGenerationEndpoints } from "@features/CodeGeneration";
 
 export const endpoints = assembleEndpoints({
   auth: authEndpoints,
@@ -28,6 +29,7 @@ export const endpoints = assembleEndpoints({
   enums: enumsEndpoints,
   documents: documentsEndpoints,
   packs: packsEndpoints,
+  codeGeneration: codeGenerationEndpoints,
 } as const);
 
 export const http = getAxios();

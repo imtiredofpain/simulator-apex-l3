@@ -84,6 +84,14 @@ export const PATHS = {
   //   tasks: '/tasks',
   //   task: (id: string) => `/tasks/${id}` as const,
 
+  // Генерация кодов
+  codeGeneration: {
+    main: "/code-generation",
+    create: "/code-generation/create",
+    byId: (id: string | number) => `/code-generation/${id}` as const,
+    generate: "/code-generation/generate",
+  },
+
   // Отчёты
   reports: {
     main: "/reports",

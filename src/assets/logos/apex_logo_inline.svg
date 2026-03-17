@@ -1,0 +1,37 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="130 60 490 170" width="490" height="170">
+  <defs>
+    <linearGradient id="pkG" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#7F77DD"/>
+      <stop offset="100%" stop-color="#185FA5"/>
+    </linearGradient>
+    <linearGradient id="txG" x1="0" y1="0" x2="1" y2="0">
+      <stop offset="0%" stop-color="#534AB7"/>
+      <stop offset="100%" stop-color="#185FA5"/>
+    </linearGradient>
+  </defs>
+
+  <!-- Peak icon -->
+  <path d="M150 218 L210 82 L270 218"
+        fill="none"
+        stroke="url(#pkG)"
+        stroke-width="16"
+        stroke-linecap="round"
+        stroke-linejoin="round"/>
+  <circle cx="210" cy="78" r="8" fill="#7F77DD"/>
+  <circle cx="210" cy="78" r="14" fill="none" stroke="#7F77DD" stroke-width="1.5" opacity="0.25"/>
+
+  <!-- Vertical divider -->
+  <line x1="312" y1="82" x2="312" y2="218"
+        stroke="#888" stroke-opacity="0.3"
+        stroke-width="1" stroke-linecap="round"/>
+
+  <!-- APEX in one line, vertically centred at y=150 -->
+  <text x="338" y="150"
+        text-anchor="start"
+        dominant-baseline="central"
+        font-family="system-ui, sans-serif"
+        font-size="82"
+        font-weight="500"
+        fill="url(#txG)"
+        letter-spacing="8">APEX</text>
+</svg>

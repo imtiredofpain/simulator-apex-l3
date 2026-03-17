@@ -1,0 +1,20 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100" width="100" height="100">
+  <defs>
+    <linearGradient id="pkG" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#7F77DD"/>
+      <stop offset="100%" stop-color="#185FA5"/>
+    </linearGradient>
+  </defs>
+
+  <!-- Peak icon centred in 100x100 -->
+  <path d="M20 82 L50 18 L80 82"
+        fill="none"
+        stroke="url(#pkG)"
+        stroke-width="8"
+        stroke-linecap="round"
+        stroke-linejoin="round"/>
+
+  <!-- Apex dot -->
+  <circle cx="50" cy="15" r="5" fill="#7F77DD"/>
+  <circle cx="50" cy="15" r="9" fill="none" stroke="#7F77DD" stroke-width="1.2" opacity="0.25"/>
+</svg>

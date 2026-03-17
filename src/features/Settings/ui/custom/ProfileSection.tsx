@@ -9,7 +9,7 @@ import { Skeleton } from '@shared/components/ui/skeleton';
 import { UserRoundX, AtSign, Shield, LogOut } from 'lucide-react';
 import { Button } from '@shared/components/ui/button';
 import useMe from '@features/Users/hooks/useMe';
-import LogoME from '@assets/logos/ME_logo_icon.svg';
+import LogoME from '@assets/logos/apex_logo.svg';
 import type { SectionRendererProps } from '@features/Settings/registry/section';
 import { useLogoutUrlParam } from '@features/Auth';
 

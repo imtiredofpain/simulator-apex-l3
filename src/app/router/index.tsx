@@ -13,6 +13,7 @@ import { PackagesRoutes } from "@features/Packages";
 import { ReportsRoutes } from "@features/Reports";
 import { MaterialsRoutes } from "@features/Materials";
 import { PacksRoutes } from "@features/Packs";
+import { CodeGenerationRoutes } from "@features/CodeGeneration";
 
 export const routesConfig = [
   ...LinesRoutes,
@@ -26,6 +27,7 @@ export const routesConfig = [
   ...ReportsRoutes,
   ...MaterialsRoutes,
   ...PacksRoutes,
+  ...CodeGenerationRoutes,
 ];
 
 const routes: RouteObject[] = buildRoutes(routesConfig);

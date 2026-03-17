@@ -1,13 +1,12 @@
-import { useEffect, useState } from 'react';
-import { RegisterSettingRenderers, SettingsDialog } from '@features/Settings';
-import { Outlet } from 'react-router-dom';
-import { motion, AnimatePresence } from 'framer-motion';
-import { useSettingsDialogQuery } from '@features/Settings/model/hooks';
-import { Button } from '@shared/components/ui/button';
-import { Settings } from 'lucide-react';
-import { SuperellipseIcon } from '@mrdn/app-common';
-import { Skeleton } from '@shared/components/ui/skeleton';
-import { PowerSavingBridge } from '@shared/processes/power-saving/ui/PowerSavingBridge';
+import { useEffect, useState } from "react";
+import { RegisterSettingRenderers, SettingsDialog } from "@features/Settings";
+import { Outlet } from "react-router-dom";
+import { motion, AnimatePresence } from "framer-motion";
+import { useSettingsDialogQuery } from "@features/Settings/model/hooks";
+import { Button } from "@shared/components/ui/button";
+import { Settings } from "lucide-react";
+import { Skeleton } from "@shared/components/ui/skeleton";
+import { PowerSavingBridge } from "@shared/processes/power-saving/ui/PowerSavingBridge";
 
 // 1) Боковое меню опциональное через константу (потенциально функция)
 const SHOW_SIDEBAR = true; // переключатель боковой панели
@@ -34,11 +33,11 @@ export function AuthShell({ children }: { children?: React.ReactNode }) {
       setLoading(true);
       // Здесь как будто пришли данные извне
       setData({
-        title: 'Добро пожаловать в L3',
+        title: "Добро пожаловать в L3",
         description:
-          'Войдите, чтобы продолжить работу. Тут можем показывать что-то полезное...',
+          "Войдите, чтобы продолжить работу. Тут можем показывать что-то полезное...",
         imageUrl:
-          'https://prod.protech.mrdn.cloud/core/assets/theme/banner/bg.svg', // подставьте URL при наличии
+          "https://prod.protech.mrdn.cloud/core/assets/theme/banner/bg.svg", // подставьте URL при наличии
       });
       setLoading(false);
     }, 3000);
@@ -64,10 +63,10 @@ export function AuthShell({ children }: { children?: React.ReactNode }) {
         <div className="flex flex-col items-center justify-center w-full h-screen px-4 mx-auto max-w-7xl sm:px-6 lg:px-8">
           <div
             className={
-              'grid items-stretch gap-8 py-8 sm:py-12 grid-rows-[min-content] w-full ' +
+              "grid items-stretch gap-8 py-8 sm:py-12 grid-rows-[min-content] w-full " +
               (isSidebarEnabled()
-                ? 'grid-cols-1 lg:grid-cols-2'
-                : 'grid-cols-1')
+                ? "grid-cols-1 lg:grid-cols-2"
+                : "grid-cols-1")
             }
           >
             <AnimatePresence>
@@ -77,7 +76,7 @@ export function AuthShell({ children }: { children?: React.ReactNode }) {
                 initial="initial"
                 animate="animate"
                 exit="exit"
-                transition={{ duration: 0.5, ease: 'easeInOut' }}
+                transition={{ duration: 0.5, ease: "easeInOut" }}
                 className="flex justify-center"
               >
                 <div className="w-full max-w-xs p-4 shadow-none auth-card sm:max-w-sm md:max-w-md lg:max-w-md xl:max-w-lg rounded-2xl bg-white/90 dark:bg-neutral-900/80 backdrop-blur ring-1 ring-black/5 dark:ring-white/10 sm:p-6 md:p-8">
@@ -91,10 +90,10 @@ export function AuthShell({ children }: { children?: React.ReactNode }) {
                 <div className="absolute w-full top-4 right-4">
                   <Button
                     onClick={() => {
-                      openDialog('general');
+                      openDialog("general");
                     }}
                     className="-mt-6"
-                    variant={'outline'}
+                    variant={"outline"}
                     size="sm"
                   >
                     <Settings />
@@ -112,29 +111,15 @@ export function AuthShell({ children }: { children?: React.ReactNode }) {
                   initial="initial"
                   animate="animate"
                   exit="exit"
-                  transition={{ duration: 0.5, ease: 'easeInOut' }}
+                  transition={{ duration: 0.5, ease: "easeInOut" }}
                   className="hidden lg:block"
                 >
                   {/* 4) Место под логотип приложения */}
                   <div className="flex items-center gap-3 mb-6">
-                    <div className="">
-                      <SuperellipseIcon
-                        size={40}
-                        bgClassName="text-white"
-                        strokeWidth={1}
-                        strokeColor="var(--border)"
-                        padding={8}
-                      >
-                        <img
-                          src="/src/assets/logos/ME_logo_icon.svg"
-                          alt="L2"
-                        />
-                      </SuperellipseIcon>
-                    </div>
                     <img
-                      src="/src/assets/logos/ME_logo_text.svg"
-                      alt="L2"
-                      className="h-6 dark:invert"
+                      src="/src/assets/logos/apex_logo.svg"
+                      alt="Apex L3"
+                      className="h-10"
                     />
                   </div>
                   {/* 5) Скелетон при загрузке */}
@@ -168,11 +153,11 @@ export function AuthShell({ children }: { children?: React.ReactNode }) {
                   )}
                   <Button
                     onClick={() => {
-                      openDialog('general');
+                      openDialog("general");
                     }}
                     className="mt-6"
                     size="sm"
-                    variant={'outline'}
+                    variant={"outline"}
                   >
                     <Settings />
                     Настройки

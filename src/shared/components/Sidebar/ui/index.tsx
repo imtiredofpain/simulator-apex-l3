@@ -1,31 +1,29 @@
-import { Link } from 'react-router-dom';
-import platform from 'platform';
+import { Link } from "react-router-dom";
+import platform from "platform";
 import {
   Sidebar,
   SidebarContent,
   useSidebar,
   SidebarTrigger,
   SidebarGroup,
-} from '@shared/components/ui/sidebar';
-import { cn } from '@shared/lib/utils';
-import { useMediaQuery } from '@shared/hooks/useMediaQuery';
-import { useIsFullscreen } from '@shared/hooks/useIsFullscreen';
-import { SuperellipseIcon } from '@mrdn/app-common';
-import { Separator } from '@shared/components/ui/separator';
-import { LinearBlur } from '@shared/components/LinearBlur';
-import { useTheme } from '@features/Settings/providers/theme';
-import SidebarFooterComp from './Footer';
-import ME_Icon from '@assets/logos/ME_logo_icon.svg';
-import ME_Text from '@assets/logos/ME_logo_text.svg';
-import { NavCollapsible } from './NavCollapsible';
-import NavBar from './NavBar';
-import { sidebarMenuConfig } from '@shared/config/sidebarMenu';
-import { PATHS } from '@shared/config/pathRoute';
-import { NavCollapsibleAsync } from './NavCollapsibleAsync';
+} from "@shared/components/ui/sidebar";
+import { cn } from "@shared/lib/utils";
+import { useMediaQuery } from "@shared/hooks/useMediaQuery";
+import { useIsFullscreen } from "@shared/hooks/useIsFullscreen";
+import { Separator } from "@shared/components/ui/separator";
+import { LinearBlur } from "@shared/components/LinearBlur";
+import { useTheme } from "@features/Settings/providers/theme";
+import SidebarFooterComp from "./Footer";
+import ApexLogo from "@assets/logos/apex_logo_inline.svg";
+import { NavCollapsible } from "./NavCollapsible";
+import NavBar from "./NavBar";
+import { sidebarMenuConfig } from "@shared/config/sidebarMenu";
+import { PATHS } from "@shared/config/pathRoute";
+import { NavCollapsibleAsync } from "./NavCollapsibleAsync";
 
 export function AppSidebar() {
   const { open, isMobile, openMobile } = useSidebar();
-  const matchesTablet = useMediaQuery('(max-width: 1024px)');
+  const matchesTablet = useMediaQuery("(max-width: 1024px)");
   const isTablet = !isMobile && matchesTablet;
   const { theme } = useTheme();
 
@@ -34,9 +32,9 @@ export function AppSidebar() {
     (!isDesktop && isTablet && !isMobile && open) ||
     (!isTablet && !open && !isDesktop && !isMobile);
 
-  const family = (platform.os?.family ?? '').toLowerCase();
-  const isMac = !!(family.includes('os x') || family.includes('mac'));
-  const isWindows = family.includes('windows');
+  const family = (platform.os?.family ?? "").toLowerCase();
+  const isMac = !!(family.includes("os x") || family.includes("mac"));
+  const isWindows = family.includes("windows");
 
   const isFullscreen = useIsFullscreen();
   const needsMacTitlebarInset = isMac && !isFullscreen;
@@ -54,29 +52,29 @@ export function AppSidebar() {
   const outerWidth = isMobile
     ? 0
     : isTablet
-    ? COLLAPSED_WIDTH + OUTER_PADDING
-    : open
-    ? EXPANDED_WIDTH + OUTER_PADDING
-    : COLLAPSED_WIDTH + OUTER_PADDING;
+      ? COLLAPSED_WIDTH + OUTER_PADDING
+      : open
+        ? EXPANDED_WIDTH + OUTER_PADDING
+        : COLLAPSED_WIDTH + OUTER_PADDING;
 
   const contentWidth =
     isMobile || (isTablet && open)
       ? EXPANDED_WIDTH
       : open
-      ? EXPANDED_WIDTH
-      : COLLAPSED_WIDTH;
+        ? EXPANDED_WIDTH
+        : COLLAPSED_WIDTH;
 
   const isOpen = isMobile || (isTablet && open) ? true : open;
 
   return (
     <div
       className={cn(
-        'flex flex-col shrink-0', // не позволяем сжиматься странно
-        'h-full',
+        "flex flex-col shrink-0", // не позволяем сжиматься странно
+        "h-full",
         // Гарантируем адекватную работу на сверхузких экранах
-        'min-w-0 max-w-full',
-        'overflow-hidden',
-        'z-40'
+        "min-w-0 max-w-full",
+        "overflow-hidden",
+        "z-40",
       )}
       // Точная ширина через инлайн-стиль, чтобы не дёргать Tailwind классами на каждом шаге
       style={{ width: outerWidth }}
@@ -98,19 +96,19 @@ export function AppSidebar() {
         collapsible="icon"
         className={cn(
           (isMobile || (isTablet && open)) && [
-            'fixed inset-y-0 left-0 z-40 transition-transform duration-200 ease-out',
+            "fixed inset-y-0 left-0 z-40 transition-transform duration-200 ease-out",
             (isMobile ? openMobile : open)
-              ? 'translate-x-0 pointer-events-auto'
-              : '-translate-x-full pointer-events-none',
-          ]
+              ? "translate-x-0 pointer-events-auto"
+              : "-translate-x-full pointer-events-none",
+          ],
         )}
       >
         <SidebarContent
           className={cn(
-            'h-full overflow-y-auto',
-            'pt-1',
-            '[&_[data-sidebar=menu]]:gap-1',
-            ''
+            "h-full overflow-y-auto",
+            "pt-1",
+            "[&_[data-sidebar=menu]]:gap-1",
+            "",
           )}
           style={{
             width: contentWidth,
@@ -120,43 +118,44 @@ export function AppSidebar() {
             blur={64}
             rotate={180}
             className={cn(
-              'absolute top-0 right-0  z-1! w-full',
-              needsMacTitlebarInset ? 'h-[100px]!' : 'h-[70px]!'
+              "absolute top-0 right-0  z-1! w-full",
+              needsMacTitlebarInset ? "h-[100px]!" : "h-[70px]!",
             )}
             color={
-              isOpen ? undefined : theme === 'light' ? '#dde8ff' : '#0b2d56'
+              isOpen ? undefined : theme === "light" ? "#dde8ff" : "#0b2d56"
             }
           />
           {needsMacTitlebarInset && <div className="mt-6" />}
           <div
             className={cn(
-              'flex items-center gap-2 p-2',
-              'sticky left-0 z-10',
-              needsMacTitlebarInset ? 'top-8' : 'top-0',
-              open || openMobile ? 'justify-start pl-3' : 'justify-center'
+              "flex items-center gap-2 p-2",
+              "sticky left-0 z-10",
+              needsMacTitlebarInset ? "top-8" : "top-0",
+              open || openMobile ? "justify-start pl-3" : "justify-center",
             )}
           >
             <Link to={PATHS.home}>
-              <SuperellipseIcon
-                size={40}
-                bgClassName="text-white"
-                strokeWidth={1}
-                strokeColor="var(--border)"
-                padding={8}
-              >
-                <img src={ME_Icon} alt="L3" />
-              </SuperellipseIcon>
+              {open || openMobile ? (
+                <img src={ApexLogo} alt="Apex L3" className="h-16" />
+              ) : (
+                <img src="/apex_icon.svg" alt="Apex L3" className="h-9 w-9" />
+              )}
             </Link>
-            {(open || openMobile) && (
-              <Link to={PATHS.home}>
-                <img src={ME_Text} alt="L3" className="h-7 dark:invert" />
-              </Link>
-            )}
           </div>
           <SidebarGroup>
             <NavBar isOpen={isOpen} routes={sidebarMenuConfig.simple} />
-            {sidebarMenuConfig.groups && <NavCollapsible isOpen={isOpen} routes={sidebarMenuConfig.groups} />}
-            {sidebarMenuConfig.async && <NavCollapsibleAsync isOpen={isOpen} routes={sidebarMenuConfig.async} />}
+            {sidebarMenuConfig.groups && (
+              <NavCollapsible
+                isOpen={isOpen}
+                routes={sidebarMenuConfig.groups}
+              />
+            )}
+            {sidebarMenuConfig.async && (
+              <NavCollapsibleAsync
+                isOpen={isOpen}
+                routes={sidebarMenuConfig.async}
+              />
+            )}
           </SidebarGroup>
           <Separator className="-mb-2" />
         </SidebarContent>
