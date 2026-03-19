@@ -89,6 +89,7 @@ export const PATHS = {
     main: "/code-generation",
     create: "/code-generation/create",
     byId: (id: string | number) => `/code-generation/${id}` as const,
+    edit: (id: string | number) => `/code-generation/${id}/edit` as const,
     generate: "/code-generation/generate",
   },
 

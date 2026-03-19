@@ -1,6 +1,6 @@
 import { SimplePage } from '@shared/components/SimplePage';
 import { Button } from '@shared/components/ui/button';
-import { Play } from 'lucide-react';
+import { Pencil, Play } from 'lucide-react';
 import { ScriptEditor } from './ScriptEditor';
 import { useNavigate, useParams } from 'react-router-dom';
 import useQueryScript from '../hooks/useQueryScript';
@@ -28,6 +28,15 @@ export function ScriptDetail() {
           >
             <Play className="w-4 h-4 mr-2" />
             Генерировать коды
+          </Button>
+          <Button
+            variant="outline"
+            onClick={() => {
+              navigate(PATHS.codeGeneration.edit(script.id));
+            }}
+          >
+            <Pencil className="w-4 h-4 mr-2" />
+            Редактировать
           </Button>
         </div>
       }

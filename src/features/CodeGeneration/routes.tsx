@@ -11,6 +11,9 @@ const ScriptDetail = lazy(
 const ScriptCreate = lazy(
   async () => await import('./').then((m) => ({ default: m.ScriptCreate }))
 );
+const ScriptEdit = lazy(
+  async () => await import('./').then((m) => ({ default: m.ScriptEdit }))
+);
 const GeneratePage = lazy(
   async () => await import('./').then((m) => ({ default: m.GeneratePage }))
 );
@@ -36,6 +39,17 @@ export const CodeGenerationRoutes = [
         groups: [],
         handle: {
           crumb: () => 'Скрипт',
+        },
+      },
+      {
+        path: ':id/edit',
+        name: 'codeGeneration',
+        element: ScriptEdit,
+        layout: 'app',
+        permissions: [],
+        groups: [],
+        handle: {
+          crumb: () => 'Редактирование скрипта',
         },
       },
       {

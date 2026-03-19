@@ -1,6 +1,7 @@
 export { ScriptsPage } from './ui';
 export { ScriptDetail } from './ui/ScriptDetail';
 export { ScriptCreate } from './ui/ScriptCreate';
+export { ScriptEdit } from './ui/ScriptEdit';
 export { GeneratePage } from './ui/GeneratePage';
 export { CodeGenerationRoutes } from './routes';
 export { codeGenerationEndpoints } from './endpoints';
