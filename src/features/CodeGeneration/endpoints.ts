@@ -10,4 +10,5 @@ export const codeGenerationEndpoints = E((e) => ({
     .deps([tag('codeGeneration:scripts'), tag('codeGeneration:scriptById')]),
   generate: e.post('generate', 'v1/code-generation/generate').deps([tag('codeGeneration:scripts')]),
   execute: e.post('execute', 'v1/code-generation/generate/execute'),
+  dashboard: e.get('dashboard', 'v1/admin/dashboard').tag('codeGeneration:dashboard'),
 }));

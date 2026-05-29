@@ -28,7 +28,7 @@ export function ScriptCreate() {
   const [saving, setSaving] = useState(false);
 
   // Дебаунс для парсинга metadata
-  const parseTimerRef = useRef<ReturnType<typeof setTimeout>>();
+  const parseTimerRef = useRef<ReturnType<typeof setTimeout> | undefined>(undefined);
 
   const handleScriptChange = useCallback((code: string) => {
     setScriptCode(code);

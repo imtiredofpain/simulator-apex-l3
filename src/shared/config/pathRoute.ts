@@ -54,6 +54,8 @@ export const PATHS = {
 
   users: "/users",
 
+  dashboard: "/dashboard",
+
   // Авторизация
   signIn: "/sign-in",
 

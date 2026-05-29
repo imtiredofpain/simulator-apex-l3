@@ -50,6 +50,11 @@ export const sidebarMenuConfig: {
       to: PATHS.apiLogs.main,
     },
     {
+      title: "Дашборд системы",
+      icon: BarChart3,
+      to: PATHS.dashboard,
+    },
+    {
       title: "Генерация кодов",
       icon: Code,
       to: PATHS.codeGeneration.main,

@@ -55,7 +55,7 @@ export function ScriptEdit() {
   }, [script, initialized]);
 
   // Дебаунс для парсинга metadata
-  const parseTimerRef = useRef<ReturnType<typeof setTimeout>>();
+  const parseTimerRef = useRef<ReturnType<typeof setTimeout> | undefined>(undefined);
 
   const handleScriptChange = useCallback((code: string) => {
     setScriptCode(code);

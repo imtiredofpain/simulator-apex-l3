@@ -71,7 +71,7 @@ export function GeneratePage() {
   }, [scriptId, scripts, mode]);
 
   // При вводе кастомного скрипта — парсим metadata с дебаунсом
-  const parseTimerRef = useRef<ReturnType<typeof setTimeout>>();
+  const parseTimerRef = useRef<ReturnType<typeof setTimeout> | undefined>(undefined);
 
   const handleCustomCodeChange = useCallback((code: string) => {
     setCustomCode(code);
