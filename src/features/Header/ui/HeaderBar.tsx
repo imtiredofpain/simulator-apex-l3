@@ -36,6 +36,7 @@ import {
 } from '@shared/components/ui/select';
 import { useSelectedInn, useSetSelectedInn } from '@features/Organizations';
 import { useQueryOrganizations } from '@features/Organizations/hooks/useQueryOrganizations';
+import { Activity, Building2 } from 'lucide-react';
 
 /** ================= Типы крошек (без any) ================= */
 type CrumbMeta = { title?: string };
@@ -176,14 +177,15 @@ function HeaderBar() {
 
   return (
     <header
-      className={`flex items-center w-full relative border-b h-[33px] app-shell__header select-none transition-all ease-in-out duration-300 pr-3 overflow-x-auto-auto`}
+      className="app-shell__header sticky top-0 z-30 flex h-16 w-full shrink-0 select-none items-center border-b border-border/60 bg-background/78 px-3 backdrop-blur-xl transition-all duration-300 lg:px-5"
     >
-      <div className="flex items-start justify-between w-full">
-        <div className="flex items-center gap-2 [-webkit-app-region:no-drag]">
-          <SidebarTrigger />
+      <div className="flex min-w-0 flex-1 items-center justify-between">
+        <div className="flex min-w-0 items-center gap-3 [-webkit-app-region:no-drag]">
+          <SidebarTrigger className="size-9 rounded-xl border border-border/70 bg-card/75 shadow-sm hover:bg-accent" />
+          <div className="hidden h-6 w-px bg-border/70 sm:block" />
           <span
             ref={containerRef}
-            className="block min-w-0 text-sm text-foreground/70  max-w-[50vw] sm:max-w-[60vw] md:max-w-[70vw] lg:max-w-[75vw]"
+            className="block min-w-0 max-w-[40vw] text-sm font-medium text-foreground/60 sm:max-w-[46vw] lg:max-w-[52vw]"
           >
             <Breadcrumb>
               <BreadcrumbList
@@ -328,23 +330,36 @@ function HeaderBar() {
           </span>
         </div>
       </div>
-      <div className="flex items-center">
+      <div className="flex shrink-0 items-center gap-3">
+        <div className="hidden items-center gap-2 rounded-full border border-emerald-500/20 bg-emerald-500/8 px-3 py-1.5 text-xs font-semibold text-emerald-600 dark:text-emerald-400 xl:flex">
+          <span className="relative flex size-2">
+            <span className="absolute inline-flex size-full animate-ping rounded-full bg-emerald-400 opacity-60" />
+            <span className="relative inline-flex size-2 rounded-full bg-emerald-500" />
+          </span>
+          <Activity className="size-3.5" />
+          Контур активен
+        </div>
         <Select
           onValueChange={(value) => setSelectedInn(value)}
           value={selectedInn || ""}
         >
-          <SelectTrigger className="max-w-[280px] w-fit h-1 p-0 border-0 focus-visible:ring-0 bg-transparent!">
+          <SelectTrigger className="h-10 w-fit max-w-[320px] rounded-xl border-border/70 bg-card/75 px-3 shadow-sm focus-visible:ring-1">
             {!selectedInn && <SelectValue placeholder="Выберите организацию" />}
             {selectedInn && (
-              <div className='flex flex-row gap-1'>
-                <span>
+              <div className="flex min-w-0 flex-row items-center gap-2">
+                <span className="flex size-6 shrink-0 items-center justify-center rounded-lg bg-primary/10 text-primary">
+                  <Building2 className="size-3.5" />
+                </span>
+                <span className="max-w-[170px] truncate font-semibold">
                   {organizations?.find((o) => o.inn === selectedInn)?.name}
                 </span>
-                <span className='text-muted-foreground'>(ИНН: {selectedInn})</span>
+                <span className="hidden text-xs text-muted-foreground lg:inline">
+                  {selectedInn}
+                </span>
               </div>
             )}
           </SelectTrigger>
-          <SelectContent className='w-fit! max-w-[350px]!'>
+          <SelectContent className="w-fit! max-w-[350px]! rounded-xl">
             <SelectGroup>
               {organizations?.map((org) => (
                 <SelectItem key={org.inn} value={org.inn}>

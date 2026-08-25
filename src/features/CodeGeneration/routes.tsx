@@ -1,91 +1,94 @@
-import type { RouteConfig } from '@shared/navigation/types';
-import { lazy } from 'react';
-import { PATHS } from '@shared/config/pathRoute';
+import type { RouteConfig } from "@shared/navigation/types";
+import { lazy } from "react";
+import { PATHS } from "@shared/config/pathRoute";
 
 const ScriptsPage = lazy(
-  async () => await import('./').then((m) => ({ default: m.ScriptsPage }))
+  async () => await import("./").then((m) => ({ default: m.ScriptsPage })),
 );
 const ScriptDetail = lazy(
-  async () => await import('./').then((m) => ({ default: m.ScriptDetail }))
+  async () => await import("./").then((m) => ({ default: m.ScriptDetail })),
 );
 const ScriptCreate = lazy(
-  async () => await import('./').then((m) => ({ default: m.ScriptCreate }))
+  async () => await import("./").then((m) => ({ default: m.ScriptCreate })),
 );
 const ScriptEdit = lazy(
-  async () => await import('./').then((m) => ({ default: m.ScriptEdit }))
+  async () => await import("./").then((m) => ({ default: m.ScriptEdit })),
 );
 const GeneratePage = lazy(
-  async () => await import('./').then((m) => ({ default: m.GeneratePage }))
+  async () => await import("./").then((m) => ({ default: m.GeneratePage })),
 );
 const DashboardPage = lazy(
-  async () => await import('./ui/DashboardPage').then((m) => ({ default: m.DashboardPage }))
+  async () =>
+    await import("./ui/DashboardPage").then((m) => ({
+      default: m.DashboardPage,
+    })),
 );
 
 export const CodeGenerationRoutes = [
   {
     path: PATHS.dashboard,
-    name: 'systemDashboard',
+    name: "systemDashboard",
     element: DashboardPage,
-    layout: 'app',
+    layout: "app",
     permissions: [],
     groups: [],
     handle: {
-      crumb: () => 'Р”Р°С€Р±РѕСЂРґ СЃРёСЃС‚РµРјС‹',
+      crumb: () => "Дашборд системы",
     },
   },
   {
     path: PATHS.codeGeneration.main,
-    name: 'codeGeneration',
+    name: "codeGeneration",
     element: ScriptsPage,
-    layout: 'app',
+    layout: "app",
     permissions: [],
     groups: [],
     handle: {
-      crumb: () => 'Генерация кодов',
+      crumb: () => "Генерация кодов",
     },
     children: [
       {
-        path: ':id',
-        name: 'codeGeneration',
+        path: ":id",
+        name: "codeGeneration",
         element: ScriptDetail,
-        layout: 'app',
+        layout: "app",
         permissions: [],
         groups: [],
         handle: {
-          crumb: () => 'Скрипт',
+          crumb: () => "Скрипт",
         },
       },
       {
-        path: ':id/edit',
-        name: 'codeGeneration',
+        path: ":id/edit",
+        name: "codeGeneration",
         element: ScriptEdit,
-        layout: 'app',
+        layout: "app",
         permissions: [],
         groups: [],
         handle: {
-          crumb: () => 'Редактирование скрипта',
+          crumb: () => "Редактирование скрипта",
         },
       },
       {
-        path: 'create',
-        name: 'codeGeneration',
+        path: "create",
+        name: "codeGeneration",
         element: ScriptCreate,
-        layout: 'app',
+        layout: "app",
         permissions: [],
         groups: [],
         handle: {
-          crumb: () => 'Создание скрипта',
+          crumb: () => "Создание скрипта",
         },
       },
       {
-        path: 'generate',
-        name: 'codeGeneration',
+        path: "generate",
+        name: "codeGeneration",
         element: GeneratePage,
-        layout: 'app',
+        layout: "app",
         permissions: [],
         groups: [],
         handle: {
-          crumb: () => 'Генерация',
+          crumb: () => "Генерация",
         },
       },
     ],

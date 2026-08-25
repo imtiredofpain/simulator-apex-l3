@@ -17,7 +17,7 @@ import {
 import { Tooltip, TooltipContent, TooltipTrigger } from '@shared/components/ui/tooltip';
 import type { SidebarGroupItem } from '@shared/navigation/types';
 import { ChevronRight } from 'lucide-react';
-import { Link } from 'react-router-dom';
+import { Link, useLocation } from 'react-router-dom';
 
 export function NavCollapsible({
   isOpen,
@@ -26,18 +26,30 @@ export function NavCollapsible({
   isOpen: boolean;
   routes: readonly SidebarGroupItem[];
 }) {
-  return routes.map((route) => (
+  const location = useLocation();
+  const isPathActive = (path: string) =>
+    location.pathname === path || location.pathname.startsWith(`${path}/`);
+
+  return routes.map((route) => {
+    const isRouteActive = route.children.some((child) => isPathActive(child.to));
+
+    return (
     <SidebarMenu key={route.title}>
       <Collapsible
         key={route.title + route.order}
         asChild
-        defaultOpen={!open}
+        defaultOpen={isRouteActive}
         className="group/collapsible"
       >
         <SidebarMenuItem className={isOpen ? "" : "flex justify-center"}>
           {isOpen && (
             <CollapsibleTrigger asChild>
-              <SidebarMenuButton tooltip={route.title} size={"md"}>
+              <SidebarMenuButton
+                tooltip={route.title}
+                size="md"
+                isActive={isRouteActive}
+                className="h-11 rounded-xl px-3 text-sidebar-foreground/65 hover:text-white data-[active=true]:bg-sidebar-accent data-[active=true]:text-white data-[active=true]:shadow-[inset_3px_0_0_var(--sidebar-primary)]"
+              >
                 {route.icon && <route.icon className="w-5.5! h-5.5!" />}
                 {isOpen && <span>{route.title}</span>}
                 <ChevronRight className="ml-auto transition-transform duration-200 group-data-[state=open]/collapsible:rotate-90" />
@@ -75,7 +87,11 @@ export function NavCollapsible({
                   <SidebarMenuSub className="ml-0 mt-1 -mr-3">
                     {route.children.map((child) => (
                       <SidebarMenuSubItem key={child.to}>
-                        <SidebarMenuSubButton asChild size={"md"}>
+                        <SidebarMenuSubButton
+                          asChild
+                          size="md"
+                          isActive={isPathActive(child.to)}
+                        >
                           <Link to={child.to}>{child.title}</Link>
                         </SidebarMenuSubButton>
                       </SidebarMenuSubItem>
@@ -90,7 +106,12 @@ export function NavCollapsible({
             {route.children.map((child) => (
               <SidebarMenuSub key={child.to}>
                 <SidebarMenuSubItem>
-                  <SidebarMenuSubButton asChild size={"md"}>
+                  <SidebarMenuSubButton
+                    asChild
+                    size="md"
+                    isActive={isPathActive(child.to)}
+                    className="h-9 rounded-lg text-sidebar-foreground/55 data-[active=true]:bg-sidebar-accent data-[active=true]:text-white"
+                  >
                     <Link to={child.to}>{child.title}</Link>
                   </SidebarMenuSubButton>
                 </SidebarMenuSubItem>
@@ -100,5 +121,6 @@ export function NavCollapsible({
         </SidebarMenuItem>
       </Collapsible>
     </SidebarMenu>
-  ));
+    );
+  });
 }

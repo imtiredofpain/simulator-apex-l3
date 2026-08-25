@@ -25,40 +25,40 @@ export const sidebarMenuConfig: {
 } = {
   simple: [
     {
-      title: "Задания",
-      icon: ClipboardList,
-      to: PATHS.tasks.main,
-    },
-    {
-      title: "Материалы",
-      icon: Group,
-      to: PATHS.materials.main,
-    },
-    {
-      title: "Упаковка",
-      icon: Package,
-      to: PATHS.packages.main,
-    },
-    {
-      title: "Продукция",
-      icon: ShoppingBasketIcon,
-      to: PATHS.products.main,
-    },
-    {
-      title: "ApiLogs",
-      icon: LogsIcon,
-      to: PATHS.apiLogs.main,
-    },
-    {
       title: "Дашборд системы",
       icon: BarChart3,
       to: PATHS.dashboard,
+    },
+    {
+      title: "Задания",
+      icon: ClipboardList,
+      to: PATHS.tasks.main,
     },
     {
       title: "Генерация кодов",
       icon: Code,
       to: PATHS.codeGeneration.main,
     },
+    {
+      title: "ApiLogs",
+      icon: LogsIcon,
+      to: PATHS.apiLogs.main,
+    },
+    // {
+    //   title: "Материалы",
+    //   icon: Group,
+    //   to: PATHS.materials.main,
+    // },
+    // {
+    //   title: "Упаковка",
+    //   icon: Package,
+    //   to: PATHS.packages.main,
+    // },
+    // {
+    //   title: "Продукция",
+    //   icon: ShoppingBasketIcon,
+    //   to: PATHS.products.main,
+    // },
   ],
   groups: [
     {

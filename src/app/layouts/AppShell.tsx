@@ -17,12 +17,12 @@ export function AppShell() {
 
   return (
     <>
-      <SidebarProvider className="w-screen h-screen" defaultOpen>
+      <SidebarProvider className="control-surface h-screen w-screen" defaultOpen>
         <AppSidebar />
-        <SidebarInset>
+        <SidebarInset className="bg-transparent">
           <div className="flex flex-col w-full h-full">
             <HeaderBar />
-            <main className="h-full overflow-auto pt-2 pr-2 pb-2">
+            <main className="h-full overflow-auto px-3 pb-3 pt-2 lg:px-5 lg:pb-5">
               <Outlet />
             </main>
           </div>

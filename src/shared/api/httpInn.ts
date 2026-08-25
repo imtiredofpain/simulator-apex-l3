@@ -29,7 +29,7 @@ apiClientInn.interceptors.request.use(
       config.headers['Inn'] = currentInn;
     }
     // Можно добавить токен авторизации
-    const token = localStorage.getItem('authToken');
+    const token = localStorage.getItem('token');
     if (token && config.headers) {
       config.headers.Authorization = `Bearer ${token}`;
     }

@@ -11,10 +11,7 @@ import { cn } from "@shared/lib/utils";
 import { useMediaQuery } from "@shared/hooks/useMediaQuery";
 import { useIsFullscreen } from "@shared/hooks/useIsFullscreen";
 import { Separator } from "@shared/components/ui/separator";
-import { LinearBlur } from "@shared/components/LinearBlur";
-import { useTheme } from "@features/Settings/providers/theme";
 import SidebarFooterComp from "./Footer";
-import ApexLogo from "@assets/logos/apex_logo_inline.svg";
 import { NavCollapsible } from "./NavCollapsible";
 import NavBar from "./NavBar";
 import { sidebarMenuConfig } from "@shared/config/sidebarMenu";
@@ -25,8 +22,6 @@ export function AppSidebar() {
   const { open, isMobile, openMobile } = useSidebar();
   const matchesTablet = useMediaQuery("(max-width: 1024px)");
   const isTablet = !isMobile && matchesTablet;
-  const { theme } = useTheme();
-
   const isDesktop = !isMobile && !isTablet;
   const showSidebarTrigger =
     (!isDesktop && isTablet && !isMobile && open) ||
@@ -34,17 +29,16 @@ export function AppSidebar() {
 
   const family = (platform.os?.family ?? "").toLowerCase();
   const isMac = !!(family.includes("os x") || family.includes("mac"));
-  const isWindows = family.includes("windows");
 
   const isFullscreen = useIsFullscreen();
   const needsMacTitlebarInset = isMac && !isFullscreen;
 
   // Ширины под разные состояния. Базируемся на визуальных требованиях,
   // но оставляем их централизованно в переменных, без магических чисел по коду.
-  const COLLAPSED_WIDTH = isMac ? 76 : isWindows ? 74 : 56; // под светофоры mac чуть шире
-  const EXPANDED_WIDTH = 280; // стандартная ширина развёрнутого меню
+  const COLLAPSED_WIDTH = isMac ? 76 : 72;
+  const EXPANDED_WIDTH = 260;
 
-  const OUTER_PADDING = isWindows ? 12 : 0;
+  const OUTER_PADDING = 0;
 
   // Desktop: open ? expanded : collapsed
   // Tablet: всегда оставляем место под узкий rail (collapsed), а разворот показываем поверх
@@ -95,6 +89,7 @@ export function AppSidebar() {
       <Sidebar
         collapsible="icon"
         className={cn(
+          "border-r border-sidebar-border/70 bg-sidebar",
           (isMobile || (isTablet && open)) && [
             "fixed inset-y-0 left-0 z-40 transition-transform duration-200 ease-out",
             (isMobile ? openMobile : open)
@@ -105,44 +100,50 @@ export function AppSidebar() {
       >
         <SidebarContent
           className={cn(
-            "h-full overflow-y-auto",
-            "pt-1",
-            "[&_[data-sidebar=menu]]:gap-1",
-            "",
+            "h-full overflow-y-auto px-2 pb-3",
+            "[&_[data-sidebar=menu]]:gap-1.5",
           )}
           style={{
             width: contentWidth,
           }}
         >
-          <LinearBlur
-            blur={64}
-            rotate={180}
-            className={cn(
-              "absolute top-0 right-0  z-1! w-full",
-              needsMacTitlebarInset ? "h-[100px]!" : "h-[70px]!",
-            )}
-            color={
-              isOpen ? undefined : theme === "light" ? "#dde8ff" : "#0b2d56"
-            }
-          />
           {needsMacTitlebarInset && <div className="mt-6" />}
           <div
             className={cn(
-              "flex items-center gap-2 p-2",
-              "sticky left-0 z-10",
+              "sticky left-0 z-10 flex h-20 items-center border-b border-sidebar-border/60 px-1",
               needsMacTitlebarInset ? "top-8" : "top-0",
-              open || openMobile ? "justify-start pl-3" : "justify-center",
+              open || openMobile ? "justify-start" : "justify-center",
             )}
           >
-            <Link to={PATHS.home}>
-              {open || openMobile ? (
-                <img src={ApexLogo} alt="Apex L3" className="h-16" />
-              ) : (
-                <img src="/apex_icon.svg" alt="Apex L3" className="h-9 w-9" />
+            <Link
+              to={PATHS.home}
+              className={cn(
+                "group flex items-center gap-3 rounded-xl px-2 py-2 transition-colors hover:bg-sidebar-accent/60",
+                !(open || openMobile) && "px-1",
+              )}
+            >
+              <span className="relative flex size-10 shrink-0 items-center justify-center rounded-xl border border-white/10 bg-white/5 shadow-[0_0_24px_rgba(110,92,255,0.18)]">
+                <img src="/apex_icon.svg" alt="Apex L3" className="h-8 w-8" />
+                <span className="absolute -right-0.5 -top-0.5 size-2 rounded-full bg-emerald-400 ring-2 ring-sidebar" />
+              </span>
+              {(open || openMobile) && (
+                <span className="min-w-0">
+                  <span className="block text-[15px] font-bold tracking-[0.22em] text-white">
+                    APEX
+                  </span>
+                  <span className="technical-label block text-[9px] text-sidebar-foreground/45">
+                    L3 control system
+                  </span>
+                </span>
               )}
             </Link>
           </div>
-          <SidebarGroup>
+          <SidebarGroup className="px-1 py-4">
+            {isOpen && (
+              <p className="technical-label mb-3 px-3 text-sidebar-foreground/35">
+                Рабочее пространство
+              </p>
+            )}
             <NavBar isOpen={isOpen} routes={sidebarMenuConfig.simple} />
             {sidebarMenuConfig.groups && (
               <NavCollapsible
@@ -157,9 +158,9 @@ export function AppSidebar() {
               />
             )}
           </SidebarGroup>
-          <Separator className="-mb-2" />
+          <Separator className="mt-auto bg-sidebar-border/60" />
         </SidebarContent>
-        <Separator className="my-0" />
+        <Separator className="my-0 bg-sidebar-border/60" />
         <SidebarFooterComp isOpen={isOpen} />
       </Sidebar>
     </div>

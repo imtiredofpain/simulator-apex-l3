@@ -16,8 +16,11 @@ import {
   Boxes,
   CircleAlert,
   FileText,
+  Gauge,
   PackageSearch,
+  Radio,
   RefreshCw,
+  ShieldCheck,
   Workflow,
 } from 'lucide-react';
 import { useQueryDashboard } from '../hooks/useQueryDashboard';
@@ -95,11 +98,11 @@ function renderUnknown(value: unknown) {
 
 function DashboardSkeleton() {
   return (
-    <div className="flex flex-col gap-4">
-      <Skeleton className="h-24 w-full" />
+    <div className="flex flex-col gap-5 py-1">
+      <Skeleton className="h-44 w-full rounded-2xl" />
       <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-4">
         {Array.from({ length: 4 }).map((_, index) => (
-          <Skeleton key={index} className="h-36 w-full" />
+          <Skeleton key={index} className="h-40 w-full rounded-2xl" />
         ))}
       </div>
       <div className="grid gap-4 xl:grid-cols-3">
@@ -116,25 +119,39 @@ function StatCard({
   value,
   description,
   icon: Icon,
+  tone,
 }: {
   title: string;
   value: string;
   description: string;
   icon: typeof Activity;
+  tone: 'violet' | 'blue' | 'cyan' | 'green';
 }) {
+  const tones = {
+    violet: 'from-violet-500/18 to-violet-500/0 text-violet-500 dark:text-violet-300',
+    blue: 'from-blue-500/18 to-blue-500/0 text-blue-600 dark:text-blue-300',
+    cyan: 'from-cyan-500/18 to-cyan-500/0 text-cyan-600 dark:text-cyan-300',
+    green: 'from-emerald-500/18 to-emerald-500/0 text-emerald-600 dark:text-emerald-300',
+  } as const;
+
   return (
-    <Card className="border-border/60">
-      <CardHeader className="flex flex-row items-start justify-between space-y-0 pb-3">
-        <div className="space-y-1">
-          <CardDescription>{title}</CardDescription>
-          <CardTitle className="text-3xl">{value}</CardTitle>
+    <Card className="metric-glow group relative overflow-hidden border-border/70 bg-card/78 transition-all duration-300 hover:-translate-y-1 hover:border-primary/30">
+      <div className={`absolute inset-x-0 top-0 h-24 bg-gradient-to-b ${tones[tone]}`} />
+      <CardHeader className="relative flex flex-row items-start justify-between space-y-0 p-5 pb-4">
+        <div className="space-y-2">
+          <CardDescription className="technical-label text-foreground/45">
+            {title}
+          </CardDescription>
+          <CardTitle className="text-3xl font-semibold tracking-[-0.04em] xl:text-4xl">
+            {value}
+          </CardTitle>
         </div>
-        <div className="rounded-lg bg-primary/10 p-2 text-primary">
+        <div className={`flex size-11 items-center justify-center rounded-xl border border-current/15 bg-background/55 ${tones[tone]}`}>
           <Icon className="h-5 w-5" />
         </div>
       </CardHeader>
-      <CardContent>
-        <p className="text-sm text-muted-foreground">{description}</p>
+      <CardContent className="relative border-t border-border/50 px-5 py-3.5">
+        <p className="text-xs leading-relaxed text-muted-foreground">{description}</p>
       </CardContent>
     </Card>
   );
@@ -159,10 +176,10 @@ function DistributionList({
         const percentage = formatPercentage(value, total);
 
         return (
-          <div key={label} className="space-y-1.5">
-            <div className="flex items-center justify-between gap-3 text-sm">
-              <span className="text-muted-foreground">{formatLabel(label)}</span>
-              <span className="font-medium">
+          <div key={label} className="space-y-2">
+            <div className="flex items-center justify-between gap-3 text-xs">
+              <span className="truncate text-muted-foreground">{formatLabel(label)}</span>
+              <span className="shrink-0 font-semibold tabular-nums">
                 {formatInteger(value)} ({formatDecimal(percentage)}%)
               </span>
             </div>
@@ -182,8 +199,8 @@ function MetricWindow({
   metric: DashboardMetricWindowDto;
 }) {
   return (
-    <div className="rounded-lg border border-border/60 p-3">
-      <p className="text-sm font-medium">{title}</p>
+    <div className="rounded-xl border border-border/60 bg-muted/20 p-3.5">
+      <p className="technical-label text-foreground/55">{title}</p>
       <div className="mt-2 grid grid-cols-3 gap-3 text-sm">
         <div>
           <p className="text-muted-foreground">С запуска</p>
@@ -208,8 +225,8 @@ function ProcessingTimeCard({
   processingTime: DashboardProcessingTimeDto;
 }) {
   return (
-    <div className="rounded-lg border border-border/60 p-3">
-      <p className="text-sm font-medium">Время обработки</p>
+    <div className="rounded-xl border border-border/60 bg-muted/20 p-3.5">
+      <p className="technical-label text-foreground/55">Время обработки</p>
       <div className="mt-2 grid grid-cols-2 gap-3 text-sm">
         <div>
           <p className="text-muted-foreground">Среднее</p>
@@ -243,31 +260,41 @@ function ServiceCard({
   children: ReactNode;
 }) {
   return (
-    <Card className="border-border/60">
-      <CardHeader className="gap-3">
+    <Card
+      className={`overflow-hidden border-border/70 bg-card/75 ${
+        health.isRunning && !health.isStalled
+          ? 'border-t-emerald-500/60'
+          : 'border-t-destructive/70'
+      } border-t-2`}
+    >
+      <CardHeader className="gap-4 border-b border-border/50 p-5">
         <div className="flex items-start justify-between gap-3">
           <div>
-            <CardTitle>{health.serviceName}</CardTitle>
-            <CardDescription>
+            <div className="mb-2 flex items-center gap-2">
+              <Radio className="size-4 text-primary" />
+              <span className="technical-label text-muted-foreground">Service node</span>
+            </div>
+            <CardTitle className="text-lg">{health.serviceName}</CardTitle>
+            <CardDescription className="mt-1 text-xs">
               Heartbeat: {formatDateTime(health.lastHeartbeat)}
             </CardDescription>
           </div>
           <Badge variant={getHealthVariant(health)}>{getHealthLabel(health)}</Badge>
         </div>
-        <div className="grid grid-cols-2 gap-3 text-sm">
-          <div>
-            <p className="text-muted-foreground">Uptime</p>
+        <div className="grid grid-cols-2 gap-3 rounded-xl bg-muted/25 p-3 text-sm">
+          <div className="border-r border-border/60">
+            <p className="technical-label text-[9px] text-muted-foreground">Uptime</p>
             <p className="font-semibold">{health.uptime}</p>
           </div>
           <div>
-            <p className="text-muted-foreground">Отставание heartbeat</p>
+            <p className="technical-label text-[9px] text-muted-foreground">Heartbeat lag</p>
             <p className="font-semibold">
               {formatDecimal(health.secondsSinceLastHeartbeat)} сек
             </p>
           </div>
         </div>
       </CardHeader>
-      <CardContent className="flex flex-col gap-3">{children}</CardContent>
+      <CardContent className="flex flex-col gap-3 p-5">{children}</CardContent>
     </Card>
   );
 }
@@ -374,24 +401,28 @@ function OverviewCards({ dashboard }: { dashboard: DashboardDto }) {
         value={formatInteger(dashboard.documents.total)}
         description={`Готово: ${formatInteger(dashboard.documents.completed)}, ошибок: ${formatInteger(dashboard.documents.failed)}`}
         icon={FileText}
+        tone="violet"
       />
       <StatCard
         title="Задачи"
         value={formatInteger(dashboard.jobs.total)}
         description={`Активных: ${formatInteger(dashboard.jobs.active)}, терминальных: ${formatInteger(dashboard.jobs.terminal)}`}
         icon={Workflow}
+        tone="blue"
       />
       <StatCard
         title="Паки"
         value={formatInteger(dashboard.packs.total)}
         description={`Статусов отслеживается: ${formatInteger(Object.keys(dashboard.packs.byStatus).length)}`}
         icon={Boxes}
+        tone="cyan"
       />
       <StatCard
         title="Сервисы"
         value={`${healthyServices}/3`}
         description={`Ошибок в ленте: ${formatInteger(dashboard.backgroundServices.recentErrors.length)}`}
         icon={Activity}
+        tone="green"
       />
     </div>
   );
@@ -434,17 +465,61 @@ export function SystemDashboard() {
   const documentStatuses = mapEntries(dashboard.documents.byStatus);
   const jobStatuses = mapEntries(dashboard.jobs.byStatus);
   const packStatuses = mapEntries(dashboard.packs.byStatus);
+  const services = [
+    dashboard.backgroundServices.jobService.health,
+    dashboard.backgroundServices.documentService.health,
+    dashboard.backgroundServices.bufferService.health,
+  ];
+  const healthyServices = services.filter(
+    (service) => service.isRunning && !service.isStalled
+  ).length;
+  const isSystemHealthy = healthyServices === services.length;
 
   return (
-    <section className="flex flex-col gap-4">
-      <div className="flex flex-col gap-3 rounded-xl border border-border/60 bg-card/60 p-4 shadow-sm lg:flex-row lg:items-center lg:justify-between">
-        <div>
-          <h2 className="text-xl font-semibold tracking-tight">Системный дашборд</h2>
-          <p className="text-sm text-muted-foreground">
-            Сводка по документам, заданиям, пакам и фоновых сервисам.
-          </p>
+    <section className="flex flex-col gap-5 py-1">
+      <div className="control-panel relative overflow-hidden rounded-2xl border-primary/20 p-5 md:p-7">
+        <div className="pointer-events-none absolute inset-0 bg-[linear-gradient(90deg,color-mix(in_oklch,var(--primary)_5%,transparent)_1px,transparent_1px),linear-gradient(color-mix(in_oklch,var(--primary)_5%,transparent)_1px,transparent_1px)] bg-[size:24px_24px] [mask-image:linear-gradient(to_right,black,transparent_78%)]" />
+        <div className="pointer-events-none absolute -right-20 -top-28 size-80 rounded-full bg-primary/15 blur-3xl" />
+        <div className="relative flex flex-col gap-6 lg:flex-row lg:items-end lg:justify-between">
+          <div className="max-w-2xl">
+            <div className="mb-3 flex items-center gap-2 text-primary">
+              <Gauge className="size-4" />
+              <span className="technical-label">Apex L3 / System control</span>
+            </div>
+            <h1 className="text-2xl font-semibold tracking-[-0.035em] md:text-4xl">
+              Центр управления
+            </h1>
+            <p className="mt-2 max-w-xl text-sm leading-relaxed text-muted-foreground md:text-base">
+              Оперативная картина по документам, заданиям, пакам и фоновым
+              сервисам в едином контуре.
+            </p>
+          </div>
+          <div className="flex flex-col items-start gap-3 lg:items-end">
+            <div
+              className={`flex items-center gap-3 rounded-xl border px-4 py-3 ${
+                isSystemHealthy
+                  ? 'border-emerald-500/25 bg-emerald-500/8 text-emerald-600 dark:text-emerald-300'
+                  : 'border-destructive/30 bg-destructive/8 text-destructive'
+              }`}
+            >
+              <span className="relative flex size-9 items-center justify-center rounded-lg bg-current/10">
+                <ShieldCheck className="size-5" />
+              </span>
+              <span>
+                <span className="technical-label block text-[9px] opacity-65">
+                  Общий статус
+                </span>
+                <span className="block text-sm font-bold">
+                  {isSystemHealthy ? 'Система работает штатно' : 'Требуется внимание'}
+                </span>
+              </span>
+            </div>
+            <span className="text-xs text-muted-foreground">
+              Последняя синхронизация · {formatDateTime(response.timestamp)}
+            </span>
+          </div>
         </div>
-        <div className="flex flex-wrap items-center gap-2">
+        <div className="relative mt-6 flex flex-wrap items-center gap-2 border-t border-border/50 pt-4">
           <Badge
             variant={
               dashboard.backgroundServices.recentErrors.length > 0
@@ -453,10 +528,18 @@ export function SystemDashboard() {
             }
           >
             <CircleAlert className="mr-1 h-3.5 w-3.5" />
-            Ошибки: {formatInteger(dashboard.backgroundServices.recentErrors.length)}
+            <span className="font-semibold">Ошибки</span>
+            {formatInteger(dashboard.backgroundServices.recentErrors.length)}
           </Badge>
-          <Badge variant="outline">Обновлено: {formatDateTime(response.timestamp)}</Badge>
-          <Button variant="outline" size="sm" onClick={() => void refetch()}>
+          <Badge variant="outline" className="bg-background/45">
+            Сервисы в работе: {healthyServices}/{services.length}
+          </Badge>
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={() => void refetch()}
+            className="ml-auto bg-background/55"
+          >
             <RefreshCw className={isFetching ? 'h-4 w-4 animate-spin' : 'h-4 w-4'} />
             Обновить
           </Button>
@@ -465,15 +548,29 @@ export function SystemDashboard() {
 
       <OverviewCards dashboard={dashboard} />
 
+      <div className="flex items-end justify-between pt-2">
+        <div>
+          <p className="technical-label text-primary">Операционная сводка</p>
+          <h2 className="mt-1 text-xl font-semibold tracking-tight">Потоки данных</h2>
+        </div>
+        <span className="hidden text-xs text-muted-foreground sm:block">
+          Актуальные значения по выбранной организации
+        </span>
+      </div>
+
       <div className="grid gap-4 xl:grid-cols-3">
-        <Card className="border-border/60">
-          <CardHeader>
-            <CardTitle>Документы</CardTitle>
+        <Card className="overflow-hidden border-border/70 bg-card/75">
+          <CardHeader className="border-b border-border/50 p-5">
+            <div className="mb-1 flex items-center gap-2 text-violet-500">
+              <FileText className="size-4" />
+              <span className="technical-label">Data flow</span>
+            </div>
+            <CardTitle className="text-lg">Документы</CardTitle>
             <CardDescription>
               Всего: {formatInteger(dashboard.documents.total)}
             </CardDescription>
           </CardHeader>
-          <CardContent className="flex flex-col gap-4">
+          <CardContent className="flex flex-col gap-4 p-5">
             <div className="grid grid-cols-2 gap-3">
               <div className="rounded-lg border border-border/60 p-3">
                 <p className="text-sm text-muted-foreground">В ожидании</p>
@@ -521,14 +618,18 @@ export function SystemDashboard() {
           </CardContent>
         </Card>
 
-        <Card className="border-border/60">
-          <CardHeader>
-            <CardTitle>Задания</CardTitle>
+        <Card className="overflow-hidden border-border/70 bg-card/75">
+          <CardHeader className="border-b border-border/50 p-5">
+            <div className="mb-1 flex items-center gap-2 text-blue-500">
+              <Workflow className="size-4" />
+              <span className="technical-label">Job queue</span>
+            </div>
+            <CardTitle className="text-lg">Задания</CardTitle>
             <CardDescription>
               Активных: {formatInteger(dashboard.jobs.active)}
             </CardDescription>
           </CardHeader>
-          <CardContent className="flex flex-col gap-4">
+          <CardContent className="flex flex-col gap-4 p-5">
             <div className="grid grid-cols-2 gap-3">
               <div className="rounded-lg border border-border/60 p-3">
                 <p className="text-sm text-muted-foreground">Всего</p>
@@ -565,14 +666,18 @@ export function SystemDashboard() {
           </CardContent>
         </Card>
 
-        <Card className="border-border/60">
-          <CardHeader>
-            <CardTitle>Паки</CardTitle>
+        <Card className="overflow-hidden border-border/70 bg-card/75">
+          <CardHeader className="border-b border-border/50 p-5">
+            <div className="mb-1 flex items-center gap-2 text-cyan-500">
+              <PackageSearch className="size-4" />
+              <span className="technical-label">Package pool</span>
+            </div>
+            <CardTitle className="text-lg">Паки</CardTitle>
             <CardDescription>
               Под мониторингом: {formatInteger(dashboard.packs.total)}
             </CardDescription>
           </CardHeader>
-          <CardContent className="flex flex-col gap-4">
+          <CardContent className="flex flex-col gap-4 p-5">
             <div className="rounded-lg border border-border/60 p-3">
               <div className="flex items-start justify-between gap-3">
                 <div>
@@ -598,24 +703,37 @@ export function SystemDashboard() {
         </Card>
       </div>
 
+      <div className="pt-2">
+        <p className="technical-label text-primary">Инфраструктура</p>
+        <h2 className="mt-1 text-xl font-semibold tracking-tight">Состояние сервисов</h2>
+      </div>
+
       <div className="grid gap-4 xl:grid-cols-3">
         <JobServiceCard service={dashboard.backgroundServices.jobService} />
         <DocumentServiceCard service={dashboard.backgroundServices.documentService} />
         <BufferServiceCard service={dashboard.backgroundServices.bufferService} />
       </div>
 
-      <Card className="border-border/60">
-        <CardHeader>
-          <CardTitle>Последние ошибки</CardTitle>
+      <Card className="overflow-hidden border-border/70 bg-card/75">
+        <CardHeader className="border-b border-border/50 p-5">
+          <div className="mb-1 flex items-center gap-2 text-amber-500">
+            <CircleAlert className="size-4" />
+            <span className="technical-label">Event stream</span>
+          </div>
+          <CardTitle className="text-lg">Последние ошибки</CardTitle>
           <CardDescription>
             Лента ошибок фоновых сервисов и мониторинга.
           </CardDescription>
         </CardHeader>
-        <CardContent>
+        <CardContent className="p-5">
           {dashboard.backgroundServices.recentErrors.length === 0 ? (
-            <p className="text-sm text-muted-foreground">
-              Сейчас в ленте нет новых ошибок.
-            </p>
+            <div className="flex items-center gap-3 rounded-xl border border-emerald-500/20 bg-emerald-500/6 p-4 text-emerald-600 dark:text-emerald-300">
+              <ShieldCheck className="size-5" />
+              <div>
+                <p className="text-sm font-semibold">Новых ошибок нет</p>
+                <p className="text-xs opacity-70">Контур мониторинга работает штатно.</p>
+              </div>
+            </div>
           ) : (
             <div className="flex flex-col gap-3">
               {dashboard.backgroundServices.recentErrors.map((item, index) => (

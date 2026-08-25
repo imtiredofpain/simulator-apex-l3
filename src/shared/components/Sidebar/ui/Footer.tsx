@@ -19,14 +19,17 @@ function SidebarFooterComp({ isOpen }: SidebarFooterCompProps) {
   const { openDialog } = useSettingsDialogQuery();
   const { open: openLogout } = useLogoutUrlParam();
   return (
-    <SidebarFooter>
+    <SidebarFooter className="gap-1.5 p-3">
       {userIsLoading && <Skeleton className="w-full h-9!" />}
       <Button
         variant="ghost"
         onClick={() => {
           openDialog('general');
         }}
-        className={cn(isOpen ? 'justify-start text-left' : 'justify-center')}
+        className={cn(
+          'h-10 rounded-xl text-sidebar-foreground/60 hover:bg-sidebar-accent hover:text-white',
+          isOpen ? 'justify-start text-left' : 'justify-center'
+        )}
       >
         <Settings className="w-4.5! h-4.5!" />
         {isOpen && 'Настройки'}
@@ -34,7 +37,10 @@ function SidebarFooterComp({ isOpen }: SidebarFooterCompProps) {
       <Button
         variant="ghost"
         onClick={openLogout}
-        className={cn(isOpen ? 'justify-start text-left' : 'justify-center')}
+        className={cn(
+          'h-10 rounded-xl text-sidebar-foreground/60 hover:bg-red-500/10 hover:text-red-300',
+          isOpen ? 'justify-start text-left' : 'justify-center'
+        )}
       >
         <LogOut className="w-4.5! h-4.5! text-red-500" />
         {isOpen && 'Выход из системы'}
