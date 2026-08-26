@@ -17,25 +17,7 @@ const ScriptEdit = lazy(
 const GeneratePage = lazy(
   async () => await import("./").then((m) => ({ default: m.GeneratePage })),
 );
-const DashboardPage = lazy(
-  async () =>
-    await import("./ui/DashboardPage").then((m) => ({
-      default: m.DashboardPage,
-    })),
-);
-
 export const CodeGenerationRoutes = [
-  {
-    path: PATHS.dashboard,
-    name: "systemDashboard",
-    element: DashboardPage,
-    layout: "app",
-    permissions: [],
-    groups: [],
-    handle: {
-      crumb: () => "Дашборд системы",
-    },
-  },
   {
     path: PATHS.codeGeneration.main,
     name: "codeGeneration",

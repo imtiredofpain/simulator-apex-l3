@@ -14,6 +14,7 @@ import { materialsEndpoints } from "@features/Materials";
 import { documentsEndpoints } from "@features/Reports";
 import { packsEndpoints } from "@features/Packs";
 import { codeGenerationEndpoints } from "@features/CodeGeneration";
+import { dashboardEndpoints } from "@features/Dashboard/endpoints";
 
 export const endpoints = assembleEndpoints({
   auth: authEndpoints,
@@ -30,6 +31,7 @@ export const endpoints = assembleEndpoints({
   documents: documentsEndpoints,
   packs: packsEndpoints,
   codeGeneration: codeGenerationEndpoints,
+  dashboard: dashboardEndpoints,
 } as const);
 
 export const http = getAxios();

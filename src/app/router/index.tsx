@@ -14,6 +14,7 @@ import { ReportsRoutes } from "@features/Reports";
 import { MaterialsRoutes } from "@features/Materials";
 import { PacksRoutes } from "@features/Packs";
 import { CodeGenerationRoutes } from "@features/CodeGeneration";
+import { DashboardRoutes } from "@features/Dashboard";
 import { HomeRoutes } from "./home";
 
 export const routesConfig = [
@@ -29,6 +30,7 @@ export const routesConfig = [
   ...ReportsRoutes,
   ...MaterialsRoutes,
   ...PacksRoutes,
+  ...DashboardRoutes,
   ...CodeGenerationRoutes,
 ];
 

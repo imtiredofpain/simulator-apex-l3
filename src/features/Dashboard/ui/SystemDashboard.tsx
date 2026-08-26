@@ -1,16 +1,16 @@
-import type { ReactNode } from 'react';
-import { Badge } from '@shared/components/ui/badge';
-import { Button } from '@shared/components/ui/button';
+import type { ReactNode } from "react";
+import { Badge } from "@shared/components/ui/badge";
+import { Button } from "@shared/components/ui/button";
 import {
   Card,
   CardContent,
   CardDescription,
   CardHeader,
   CardTitle,
-} from '@shared/components/ui/card';
-import { Progress } from '@shared/components/ui/progress';
-import { Separator } from '@shared/components/ui/separator';
-import { Skeleton } from '@shared/components/ui/skeleton';
+} from "@shared/components/ui/card";
+import { Progress } from "@shared/components/ui/progress";
+import { Separator } from "@shared/components/ui/separator";
+import { Skeleton } from "@shared/components/ui/skeleton";
 import {
   Activity,
   Boxes,
@@ -22,8 +22,8 @@ import {
   RefreshCw,
   ShieldCheck,
   Workflow,
-} from 'lucide-react';
-import { useQueryDashboard } from '../hooks/useQueryDashboard';
+} from "lucide-react";
+import { useQueryDashboard } from "../hooks/useQueryDashboard";
 import type {
   DashboardBufferServiceDto,
   DashboardDocumentServiceDto,
@@ -32,20 +32,20 @@ import type {
   DashboardMetricWindowDto,
   DashboardProcessingTimeDto,
   DashboardServiceHealthDto,
-} from '../types';
+} from "../types";
 
-const integerFormatter = new Intl.NumberFormat('ru-RU');
-const decimalFormatter = new Intl.NumberFormat('ru-RU', {
+const integerFormatter = new Intl.NumberFormat("ru-RU");
+const decimalFormatter = new Intl.NumberFormat("ru-RU", {
   maximumFractionDigits: 1,
 });
 
 const documentTypeLabels: Record<string, string> = {
-  GISMT_INTRODUCTION: 'Ввод в оборот',
-  GISMT_CIS_INFORMATION_CHANGE: 'Изменение сведений КИЗ',
-  SUZ_APPLICATION_REPORT: 'Отчет СУЗ',
-  SUZ_ORDER: 'Заказ СУЗ',
-  CRPT_PRODUCTION_REPORT: 'Отчет о производстве',
-  GISMT_AGGREGATION: 'Агрегация ГИС МТ',
+  GISMT_INTRODUCTION: "Ввод в оборот",
+  GISMT_CIS_INFORMATION_CHANGE: "Изменение сведений КИЗ",
+  SUZ_APPLICATION_REPORT: "Отчет СУЗ",
+  SUZ_ORDER: "Заказ СУЗ",
+  CRPT_PRODUCTION_REPORT: "Отчет о производстве",
+  GISMT_AGGREGATION: "Агрегация ГИС МТ",
 };
 
 function formatInteger(value: number) {
@@ -64,22 +64,22 @@ function formatPercentage(value: number, total: number) {
 function formatDateTime(value: string) {
   const date = new Date(value);
   if (Number.isNaN(date.getTime())) return value;
-  return date.toLocaleString('ru-RU');
+  return date.toLocaleString("ru-RU");
 }
 
 function formatLabel(value: string) {
-  return documentTypeLabels[value] ?? value.replaceAll('_', ' ');
+  return documentTypeLabels[value] ?? value.replaceAll("_", " ");
 }
 
 function getHealthVariant(health: DashboardServiceHealthDto) {
-  if (!health.isRunning || health.isStalled) return 'destructive' as const;
-  return 'success' as const;
+  if (!health.isRunning || health.isStalled) return "destructive" as const;
+  return "success" as const;
 }
 
 function getHealthLabel(health: DashboardServiceHealthDto) {
-  if (!health.isRunning) return 'Остановлен';
-  if (health.isStalled) return 'Завис';
-  return 'В работе';
+  if (!health.isRunning) return "Остановлен";
+  if (health.isStalled) return "Завис";
+  return "В работе";
 }
 
 function mapEntries(values: Record<string, number>) {
@@ -87,12 +87,13 @@ function mapEntries(values: Record<string, number>) {
 }
 
 function renderUnknown(value: unknown) {
-  if (typeof value === 'string') return value;
-  if (typeof value === 'number' || typeof value === 'boolean') return String(value);
+  if (typeof value === "string") return value;
+  if (typeof value === "number" || typeof value === "boolean")
+    return String(value);
   try {
     return JSON.stringify(value, null, 2);
   } catch {
-    return 'Не удалось отобразить значение';
+    return "Не удалось отобразить значение";
   }
 }
 
@@ -125,18 +126,22 @@ function StatCard({
   value: string;
   description: string;
   icon: typeof Activity;
-  tone: 'violet' | 'blue' | 'cyan' | 'green';
+  tone: "violet" | "blue" | "cyan" | "green";
 }) {
   const tones = {
-    violet: 'from-violet-500/18 to-violet-500/0 text-violet-500 dark:text-violet-300',
-    blue: 'from-blue-500/18 to-blue-500/0 text-blue-600 dark:text-blue-300',
-    cyan: 'from-cyan-500/18 to-cyan-500/0 text-cyan-600 dark:text-cyan-300',
-    green: 'from-emerald-500/18 to-emerald-500/0 text-emerald-600 dark:text-emerald-300',
+    violet:
+      "from-violet-500/18 to-violet-500/0 text-violet-500 dark:text-violet-300",
+    blue: "from-blue-500/18 to-blue-500/0 text-blue-600 dark:text-blue-300",
+    cyan: "from-cyan-500/18 to-cyan-500/0 text-cyan-600 dark:text-cyan-300",
+    green:
+      "from-emerald-500/18 to-emerald-500/0 text-emerald-600 dark:text-emerald-300",
   } as const;
 
   return (
     <Card className="metric-glow group relative overflow-hidden border-border/70 bg-card/78 transition-all duration-300 hover:-translate-y-1 hover:border-primary/30">
-      <div className={`absolute inset-x-0 top-0 h-24 bg-gradient-to-b ${tones[tone]}`} />
+      <div
+        className={`absolute inset-x-0 top-0 h-24 bg-gradient-to-b ${tones[tone]}`}
+      />
       <CardHeader className="relative flex flex-row items-start justify-between space-y-0 p-5 pb-4">
         <div className="space-y-2">
           <CardDescription className="technical-label text-foreground/45">
@@ -146,12 +151,16 @@ function StatCard({
             {value}
           </CardTitle>
         </div>
-        <div className={`flex size-11 items-center justify-center rounded-xl border border-current/15 bg-background/55 ${tones[tone]}`}>
+        <div
+          className={`flex size-11 items-center justify-center rounded-xl border border-current/15 bg-background/55 ${tones[tone]}`}
+        >
           <Icon className="h-5 w-5" />
         </div>
       </CardHeader>
       <CardContent className="relative border-t border-border/50 px-5 py-3.5">
-        <p className="text-xs leading-relaxed text-muted-foreground">{description}</p>
+        <p className="text-xs leading-relaxed text-muted-foreground">
+          {description}
+        </p>
       </CardContent>
     </Card>
   );
@@ -178,7 +187,9 @@ function DistributionList({
         return (
           <div key={label} className="space-y-2">
             <div className="flex items-center justify-between gap-3 text-xs">
-              <span className="truncate text-muted-foreground">{formatLabel(label)}</span>
+              <span className="truncate text-muted-foreground">
+                {formatLabel(label)}
+              </span>
               <span className="shrink-0 font-semibold tabular-nums">
                 {formatInteger(value)} ({formatDecimal(percentage)}%)
               </span>
@@ -204,7 +215,9 @@ function MetricWindow({
       <div className="mt-2 grid grid-cols-3 gap-3 text-sm">
         <div>
           <p className="text-muted-foreground">С запуска</p>
-          <p className="font-semibold">{formatInteger(metric.totalSinceStart)}</p>
+          <p className="font-semibold">
+            {formatInteger(metric.totalSinceStart)}
+          </p>
         </div>
         <div>
           <p className="text-muted-foreground">5 минут</p>
@@ -230,19 +243,27 @@ function ProcessingTimeCard({
       <div className="mt-2 grid grid-cols-2 gap-3 text-sm">
         <div>
           <p className="text-muted-foreground">Среднее</p>
-          <p className="font-semibold">{formatDecimal(processingTime.avgMs)} мс</p>
+          <p className="font-semibold">
+            {formatDecimal(processingTime.avgMs)} мс
+          </p>
         </div>
         <div>
           <p className="text-muted-foreground">P95</p>
-          <p className="font-semibold">{formatDecimal(processingTime.p95Ms)} мс</p>
+          <p className="font-semibold">
+            {formatDecimal(processingTime.p95Ms)} мс
+          </p>
         </div>
         <div>
           <p className="text-muted-foreground">Минимум</p>
-          <p className="font-semibold">{formatDecimal(processingTime.minMs)} мс</p>
+          <p className="font-semibold">
+            {formatDecimal(processingTime.minMs)} мс
+          </p>
         </div>
         <div>
           <p className="text-muted-foreground">Максимум</p>
-          <p className="font-semibold">{formatDecimal(processingTime.maxMs)} мс</p>
+          <p className="font-semibold">
+            {formatDecimal(processingTime.maxMs)} мс
+          </p>
         </div>
       </div>
       <p className="mt-2 text-sm text-muted-foreground">
@@ -263,8 +284,8 @@ function ServiceCard({
     <Card
       className={`overflow-hidden border-border/70 bg-card/75 ${
         health.isRunning && !health.isStalled
-          ? 'border-t-emerald-500/60'
-          : 'border-t-destructive/70'
+          ? "border-t-emerald-500/60"
+          : "border-t-destructive/70"
       } border-t-2`}
     >
       <CardHeader className="gap-4 border-b border-border/50 p-5">
@@ -272,22 +293,30 @@ function ServiceCard({
           <div>
             <div className="mb-2 flex items-center gap-2">
               <Radio className="size-4 text-primary" />
-              <span className="technical-label text-muted-foreground">Service node</span>
+              <span className="technical-label text-muted-foreground">
+                Service node
+              </span>
             </div>
             <CardTitle className="text-lg">{health.serviceName}</CardTitle>
             <CardDescription className="mt-1 text-xs">
               Heartbeat: {formatDateTime(health.lastHeartbeat)}
             </CardDescription>
           </div>
-          <Badge variant={getHealthVariant(health)}>{getHealthLabel(health)}</Badge>
+          <Badge variant={getHealthVariant(health)}>
+            {getHealthLabel(health)}
+          </Badge>
         </div>
         <div className="grid grid-cols-2 gap-3 rounded-xl bg-muted/25 p-3 text-sm">
           <div className="border-r border-border/60">
-            <p className="technical-label text-[9px] text-muted-foreground">Uptime</p>
+            <p className="technical-label text-[9px] text-muted-foreground">
+              Uptime
+            </p>
             <p className="font-semibold">{health.uptime}</p>
           </div>
           <div>
-            <p className="technical-label text-[9px] text-muted-foreground">Heartbeat lag</p>
+            <p className="technical-label text-[9px] text-muted-foreground">
+              Heartbeat lag
+            </p>
             <p className="font-semibold">
               {formatDecimal(health.secondsSinceLastHeartbeat)} сек
             </p>
@@ -313,7 +342,9 @@ function JobServiceCard({ service }: { service: DashboardJobServiceDto }) {
           Активные задачи: {formatInteger(service.activeJobsCount)}
         </p>
         {activeJobs.length === 0 ? (
-          <p className="mt-2 text-sm text-muted-foreground">Сейчас активных задач нет.</p>
+          <p className="mt-2 text-sm text-muted-foreground">
+            Сейчас активных задач нет.
+          </p>
         ) : (
           <div className="mt-2 flex flex-col gap-2">
             {activeJobs.map(([key, value]) => (
@@ -345,7 +376,11 @@ function DocumentServiceCard({
   );
 }
 
-function BufferServiceCard({ service }: { service: DashboardBufferServiceDto }) {
+function BufferServiceCard({
+  service,
+}: {
+  service: DashboardBufferServiceDto;
+}) {
   return (
     <ServiceCard health={service.health}>
       <div className="flex items-center justify-between rounded-lg border border-border/60 p-3">
@@ -355,8 +390,8 @@ function BufferServiceCard({ service }: { service: DashboardBufferServiceDto }) 
             Управляет пополнением и созданием заказов
           </p>
         </div>
-        <Badge variant={service.enabled ? 'success' : 'secondary'}>
-          {service.enabled ? 'Включена' : 'Выключена'}
+        <Badge variant={service.enabled ? "success" : "secondary"}>
+          {service.enabled ? "Включена" : "Выключена"}
         </Badge>
       </div>
       <div className="grid grid-cols-1 gap-3 sm:grid-cols-3">
@@ -391,7 +426,7 @@ function OverviewCards({ dashboard }: { dashboard: DashboardDto }) {
     dashboard.backgroundServices.bufferService.health,
   ];
   const healthyServices = services.filter(
-    (service) => service.isRunning && !service.isStalled
+    (service) => service.isRunning && !service.isStalled,
   ).length;
 
   return (
@@ -471,7 +506,7 @@ export function SystemDashboard() {
     dashboard.backgroundServices.bufferService.health,
   ];
   const healthyServices = services.filter(
-    (service) => service.isRunning && !service.isStalled
+    (service) => service.isRunning && !service.isStalled,
   ).length;
   const isSystemHealthy = healthyServices === services.length;
 
@@ -498,8 +533,8 @@ export function SystemDashboard() {
             <div
               className={`flex items-center gap-3 rounded-xl border px-4 py-3 ${
                 isSystemHealthy
-                  ? 'border-emerald-500/25 bg-emerald-500/8 text-emerald-600 dark:text-emerald-300'
-                  : 'border-destructive/30 bg-destructive/8 text-destructive'
+                  ? "border-emerald-500/25 bg-emerald-500/8 text-emerald-600 dark:text-emerald-300"
+                  : "border-destructive/30 bg-destructive/8 text-destructive"
               }`}
             >
               <span className="relative flex size-9 items-center justify-center rounded-lg bg-current/10">
@@ -510,7 +545,9 @@ export function SystemDashboard() {
                   Общий статус
                 </span>
                 <span className="block text-sm font-bold">
-                  {isSystemHealthy ? 'Система работает штатно' : 'Требуется внимание'}
+                  {isSystemHealthy
+                    ? "Система работает штатно"
+                    : "Требуется внимание"}
                 </span>
               </span>
             </div>
@@ -523,13 +560,15 @@ export function SystemDashboard() {
           <Badge
             variant={
               dashboard.backgroundServices.recentErrors.length > 0
-                ? 'destructive'
-                : 'success'
+                ? "destructive"
+                : "success"
             }
           >
             <CircleAlert className="mr-1 h-3.5 w-3.5" />
-            <span className="font-semibold">Ошибки</span>
-            {formatInteger(dashboard.backgroundServices.recentErrors.length)}
+            <span className="font-semibold">
+              Ошибки ·{" "}
+              {formatInteger(dashboard.backgroundServices.recentErrors.length)}
+            </span>
           </Badge>
           <Badge variant="outline" className="bg-background/45">
             Сервисы в работе: {healthyServices}/{services.length}
@@ -540,7 +579,9 @@ export function SystemDashboard() {
             onClick={() => void refetch()}
             className="ml-auto bg-background/55"
           >
-            <RefreshCw className={isFetching ? 'h-4 w-4 animate-spin' : 'h-4 w-4'} />
+            <RefreshCw
+              className={isFetching ? "h-4 w-4 animate-spin" : "h-4 w-4"}
+            />
             Обновить
           </Button>
         </div>
@@ -551,7 +592,9 @@ export function SystemDashboard() {
       <div className="flex items-end justify-between pt-2">
         <div>
           <p className="technical-label text-primary">Операционная сводка</p>
-          <h2 className="mt-1 text-xl font-semibold tracking-tight">Потоки данных</h2>
+          <h2 className="mt-1 text-xl font-semibold tracking-tight">
+            Потоки данных
+          </h2>
         </div>
         <span className="hidden text-xs text-muted-foreground sm:block">
           Актуальные значения по выбранной организации
@@ -633,7 +676,9 @@ export function SystemDashboard() {
             <div className="grid grid-cols-2 gap-3">
               <div className="rounded-lg border border-border/60 p-3">
                 <p className="text-sm text-muted-foreground">Всего</p>
-                <p className="text-xl font-semibold">{formatInteger(dashboard.jobs.total)}</p>
+                <p className="text-xl font-semibold">
+                  {formatInteger(dashboard.jobs.total)}
+                </p>
               </div>
               <div className="rounded-lg border border-border/60 p-3">
                 <p className="text-sm text-muted-foreground">Терминальные</p>
@@ -705,13 +750,19 @@ export function SystemDashboard() {
 
       <div className="pt-2">
         <p className="technical-label text-primary">Инфраструктура</p>
-        <h2 className="mt-1 text-xl font-semibold tracking-tight">Состояние сервисов</h2>
+        <h2 className="mt-1 text-xl font-semibold tracking-tight">
+          Состояние сервисов
+        </h2>
       </div>
 
       <div className="grid gap-4 xl:grid-cols-3">
         <JobServiceCard service={dashboard.backgroundServices.jobService} />
-        <DocumentServiceCard service={dashboard.backgroundServices.documentService} />
-        <BufferServiceCard service={dashboard.backgroundServices.bufferService} />
+        <DocumentServiceCard
+          service={dashboard.backgroundServices.documentService}
+        />
+        <BufferServiceCard
+          service={dashboard.backgroundServices.bufferService}
+        />
       </div>
 
       <Card className="overflow-hidden border-border/70 bg-card/75">
@@ -731,7 +782,9 @@ export function SystemDashboard() {
               <ShieldCheck className="size-5" />
               <div>
                 <p className="text-sm font-semibold">Новых ошибок нет</p>
-                <p className="text-xs opacity-70">Контур мониторинга работает штатно.</p>
+                <p className="text-xs opacity-70">
+                  Контур мониторинга работает штатно.
+                </p>
               </div>
             </div>
           ) : (
