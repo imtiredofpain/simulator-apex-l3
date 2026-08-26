@@ -9,20 +9,6 @@ const TaskEdit = lazy(() => import('./ui/Edit'));
 
 export const TasksRoutes = [
   {
-    path: PATHS.home,
-    name: 'tasks',
-    element: ListTasksPage,
-    layout: 'app',
-    permissions: [], // пусто => доступ всем
-    groups: [], // пусто => доступ всем
-    meta: {
-      innRequired: true,
-    },
-    handle: {
-      crumb: () => 'Задания',
-    },
-  },
-  {
     path: PATHS.tasks.main,
     name: 'tasks',
     element: ListTasksPage,

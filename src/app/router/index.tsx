@@ -14,8 +14,10 @@ import { ReportsRoutes } from "@features/Reports";
 import { MaterialsRoutes } from "@features/Materials";
 import { PacksRoutes } from "@features/Packs";
 import { CodeGenerationRoutes } from "@features/CodeGeneration";
+import { HomeRoutes } from "./home";
 
 export const routesConfig = [
+  ...HomeRoutes,
   ...LinesRoutes,
   ...OrganizationsRoutes,
   ...ControlModulesRoutes,
