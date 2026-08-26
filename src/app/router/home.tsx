@@ -1,10 +1,8 @@
-import { Navigate } from 'react-router-dom';
 import { PATHS } from '@shared/config/pathRoute';
 import type { RouteConfig } from '@shared/navigation/types';
+import { lazy } from 'react';
 
-function HomeRedirect() {
-  return <Navigate to={PATHS.dashboard} replace />;
-}
+const HomeRedirect = lazy(() => import('./HomeRedirect'));
 
 export const HomeRoutes = [
   {
