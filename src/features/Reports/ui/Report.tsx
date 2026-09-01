@@ -9,6 +9,7 @@ import useEnum from "@shared/api/hooks/enums/useEnum";
 import type { EnumUnit } from "@shared/api/hooks/enums/types";
 import { Badge } from "@shared/components/ui/badge";
 import { NotFound } from "@features/Errors";
+import DialogDeleteReport from "./DialogDeleteReport";
 
 function ReportPage() {
   const { id, type } = useParams();
@@ -52,6 +53,7 @@ function ReportPage() {
         </div>
       }
       isLoading={isLoading}
+      actionComponent={report && <DialogDeleteReport report={report} />}
       contentComponent={
         <ReportContent
           type={dataType}

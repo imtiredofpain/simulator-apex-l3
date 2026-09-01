@@ -9,4 +9,8 @@ export const documentsEndpoints = E((e) => ({
   update: e
     .patch("update", "v1/documents/:id")
     .deps([tag("documents:byId"), tag("documents:list")]),
+  remove: e
+    .delete("remove", "v1/admin/documents/:id")
+    .tag("documents:remove")
+    .deps([tag("documents:byId"), tag("documents:list")]),
 }));
