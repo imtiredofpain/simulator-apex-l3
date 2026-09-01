@@ -1,23 +1,24 @@
-import { FormGenerator } from '@mrdn/app-common';
 import { SimplePage } from '@shared/components/SimplePage';
 import { Button } from '@shared/components/ui/button';
 import { Badge, SquarePen } from 'lucide-react';
 import { useNavigate, useParams } from 'react-router-dom';
 import { memo } from 'react';
 import { PATHS } from '@shared/config/pathRoute';
-import useQueryTask from '../hooks/useQueryTask';
-import definitionTask from '../models/Definitions/task';
 import useEnum from '@shared/api/hooks/enums/useEnum';
-import { Tooltip, TooltipTrigger } from '@shared/components/ui/tooltip';
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipTrigger,
+} from '@shared/components/ui/tooltip';
 import DialogDeleteTask from './DialogDeleteTask';
 import { Skeleton } from '@shared/components/ui/skeleton';
 import type { EnumUnit } from '@shared/api/hooks/enums/types';
-import { endpoints } from '@shared/api/endpoints';
-import { apiClientInn } from '@shared/api/httpInn';
 import { toast } from 'sonner';
-import { t } from 'i18next';
 import { NotFound } from '@features/Errors';
-import AccordionContentItem from '@features/ApiLogs/ui/logsContents/AccordionContentItem';
+import { AdminJobActions } from '../admin/ui';
+import { useAdminJob, useExecuteAdminJobAction } from '../admin/hooks';
+import extractApiError from '@shared/api/extractApiError';
+import TaskDetails from './TaskDetails';
 
 function TaskPage() {
   const { id } = useParams();
@@ -26,63 +27,76 @@ function TaskPage() {
     useEnum<EnumUnit>({
       name: 'job-actions',
     });
-  const { data: { data: statuses } = {}, isLoading: isLoadingStatus } = useEnum<
-    EnumUnit<{
-      color: string;
-    }>
-  >({
-    name: 'job-status',
-  });
+  const { data: { data: statuses } = {} } = useEnum<
+    EnumUnit<{ color: string }>
+  >({ name: 'job-status' });
   const {
     data: {
       data: { job: task, actions: accessActions, jobStatusDetails } = {},
-      timestamp = '',
     } = {},
     isLoading,
-  } = useQueryTask(parseInt(id || ''));
+  } = useAdminJob(id ? Number(id) : undefined);
+  const executeAction = useExecuteAdminJobAction();
 
   const handleAction = async (key: string) => {
-    const res = await endpoints.tasks.action.call(apiClientInn, {
-      params: { id },
-      body: { action: parseInt(key) },
-    });
-
-    if (res.isSuccess)
-      toast.success(
-        `Действие "${actions?.[key].description}" успешно выполнено`
-      );
-
-    if (!res.isSuccess)
-      toast.error('Произошла ошибка', {
-        description: t(`errors.${res.message}`),
+    const label = actions?.[key]?.description || `Действие ${key}`;
+    try {
+      const res = await executeAction.mutateAsync({
+        id: Number(id),
+        body: { action: Number(key) },
       });
+
+      if (res.isSuccess) {
+        toast.success(`Действие «${label}» успешно выполнено`);
+        return;
+      }
+
+      toast.error('Произошла ошибка', {
+        description: res.message,
+      });
+    } catch (error) {
+      const apiError = extractApiError(error);
+      toast.error(`Не удалось выполнить действие «${label}»`, {
+        description: apiError.message,
+      });
+    }
   };
 
   const status = statuses?.[task?.jobStatus || 0];
+  const actionKeys = Array.from(
+    new Set([...Object.keys(actions || {}), ...Object.keys(accessActions || {})])
+  );
 
-  if (isLoading || isLoadingStatus || !id) return null;
+  if (isLoading || !id) return null;
 
   if (!task || !jobStatusDetails) {
-    return <NotFound title="Задание не найдено" />;
+    return <NotFound title="Задание не найдено" />;
   }
 
   return (
     <SimplePage
       title={
-        <div className="flex flex-row gap-2 justify-between items-start w-full">
-          <div>{task.jobNumber}</div>
-          {status && (
-            <div className="text-[16px]! font-normal!">
-              <Badge
-                style={{
-                  backgroundColor: `#${status.color}36`,
-                  color: `#${status.color}`,
-                }}
-              >
-                {status.description}
-              </Badge>
+        <div className="flex w-full flex-row items-start justify-between gap-3">
+          <div className="min-w-0">
+            <div className="text-xs! font-medium! uppercase tracking-wide text-muted-foreground">
+              Задание #{task.id}
             </div>
-          )}
+            <div className="mt-1 break-all">{task.jobNumber}</div>
+          </div>
+          <div className="shrink-0 text-[16px]! font-normal!">
+            <Badge
+              style={
+                status?.color
+                  ? {
+                      backgroundColor: `#${status.color.replace('#', '')}36`,
+                      color: `#${status.color.replace('#', '')}`,
+                    }
+                  : undefined
+              }
+            >
+              {status?.description || jobStatusDetails.description}
+            </Badge>
+          </div>
         </div>
       }
       actionComponent={
@@ -98,57 +112,53 @@ function TaskPage() {
             Редактировать
           </Button>
           <DialogDeleteTask idTask={task.id} />
+          <AdminJobActions
+            jobId={task.id}
+            currentStatus={Number(task.jobStatus)}
+          />
           {isLoadingActions
             ? Array(3)
                 .fill(0)
                 .map((_, i) => <Skeleton key={i} className="w-24 h-9" />)
-            : Object.keys(actions || {}).map((key) => {
-                const forbidden = accessActions?.[key].forbidden;
-                if (forbidden) return null;
+            : actionKeys.map((key) => {
+                const availability = accessActions?.[key];
+                const forbidden = !availability || availability.forbidden;
+                const label = actions?.[key]?.description || `Действие ${key}`;
+                const button = (
+                  <Button
+                    disabled={forbidden || executeAction.isPending}
+                    onClick={() => handleAction(key)}
+                  >
+                    {label}
+                  </Button>
+                );
+
+                if (!forbidden) return <span key={key}>{button}</span>;
+
                 return (
                   <Tooltip key={key}>
                     <TooltipTrigger asChild>
-                      <Button
-                        key={key}
-                        onClick={() => {
-                          handleAction(key);
-                        }}
-                      >
-                        {actions?.[key].description}
-                      </Button>
+                      <span className="inline-flex" tabIndex={0}>
+                        {button}
+                      </span>
                     </TooltipTrigger>
+                    <TooltipContent sideOffset={6}>
+                      {availability?.why ||
+                        'Backend не разрешил действие в текущем статусе'}
+                    </TooltipContent>
                   </Tooltip>
                 );
               })}
         </div>
       }
       contentComponent={
-        <div className="overflow-hidden">
-          <div>
-            <FormGenerator
-              definition={definitionTask}
-              initialValues={{ ...task, line: task.line.name }}
-              key={timestamp + task.id}
-              engineConfig={{
-                clearOnHideDefault: true,
-                visibleSubmitButton: true,
-                visibleCancelButton: false,
-                visibleErrors: true,
-              }}
-            />
-          </div>
-
-          <div className="flex flex-col gap-3 mt-3 flex-1 outline-none overflow-auto">
-            <AccordionContentItem
-              name="Детали задания"
-              data={JSON.stringify(task, null, 2)}
-            />
-            <AccordionContentItem
-              name="Детали статуса"
-              data={JSON.stringify(jobStatusDetails, null, 2)}
-            />
-          </div>
-        </div>
+        <TaskDetails
+          job={task}
+          statusDetails={jobStatusDetails}
+          actionAvailability={accessActions || {}}
+          statusLabel={status?.description}
+          statusColor={status?.color}
+        />
       }
     />
   );

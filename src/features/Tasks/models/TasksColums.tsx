@@ -8,6 +8,7 @@ import { Badge } from '@shared/components/ui/badge';
 import type { MaterialDto } from '@features/Materials';
 import type { PackageDto } from '@features/Packages';
 import type { EnumUnit } from "@shared/api/hooks/enums/types";
+import { Checkbox } from '@shared/components/ui/checkbox';
 
 export interface TaskRow {
   id: TaskDto["id"];
@@ -38,6 +39,62 @@ export interface TaskRow {
 
 const col = createColumnHelperExt<TaskRow>();
 
+interface TaskSelectionColumnOptions {
+  selectedIds: ReadonlySet<TaskRow['id']>;
+  visibleIds: TaskRow['id'][];
+  onSelectedIdsChange: (ids: ReadonlySet<TaskRow['id']>) => void;
+}
+
+export function createTasksColumns({
+  selectedIds,
+  visibleIds,
+  onSelectedIdsChange,
+}: TaskSelectionColumnOptions): Array<ColumnDefExt<TaskRow>> {
+  const selectedVisibleCount = visibleIds.filter((id) => selectedIds.has(id)).length;
+  const allVisibleSelected =
+    visibleIds.length > 0 && selectedVisibleCount === visibleIds.length;
+  const selectionColumn: ColumnDefExt<TaskRow> = {
+    id: 'selection',
+    header: () => (
+      <Checkbox
+        aria-label="Выбрать все задания"
+        checked={
+          allVisibleSelected
+            ? true
+            : selectedVisibleCount > 0
+              ? 'indeterminate'
+              : false
+        }
+        onCheckedChange={(checked) =>
+          onSelectedIdsChange(checked === true ? new Set(visibleIds) : new Set())
+        }
+      />
+    ),
+    cell: (info) => {
+      const jobId = info.row.original.id;
+      return (
+        <Checkbox
+          aria-label={`Выбрать задание ${info.row.original.jobNumber}`}
+          checked={selectedIds.has(jobId)}
+          onCheckedChange={(checked) => {
+            const next = new Set(selectedIds);
+            if (checked === true) next.add(jobId);
+            else next.delete(jobId);
+            onSelectedIdsChange(next);
+          }}
+        />
+      );
+    },
+    meta: {
+      align: 'center',
+      widthPx: 44,
+      sticky: 'left',
+    },
+  };
+
+  return [selectionColumn, ...tasksColumns];
+}
+
 const tasksColumns: Array<ColumnDefExt<TaskRow>> = [
   col.accessor('id', {
     header: 'id',
@@ -59,7 +116,11 @@ const tasksColumns: Array<ColumnDefExt<TaskRow>> = [
   col.accessor('jobNumber', {
     header: 'Номер',
     cell: (info) => (
-      <Link className="underline" to={PATHS.tasks.byId(info.row.original.id)}>
+      <Link
+        className="underline"
+        to={PATHS.tasks.byId(info.row.original.id)}
+        onPointerDown={(event) => event.stopPropagation()}
+      >
         {info.getValue()}
       </Link>
     ),
@@ -74,6 +135,7 @@ const tasksColumns: Array<ColumnDefExt<TaskRow>> = [
         <Link
           className="underline"
           to={PATHS.lines.byId(info.row.original.lineId)}
+          onPointerDown={(event) => event.stopPropagation()}
         >
           {info.getValue()?.name}
         </Link>
@@ -131,6 +193,7 @@ const tasksColumns: Array<ColumnDefExt<TaskRow>> = [
           to={PATHS.materials.byId(
             info.row.original.materialId?.toString() || ''
           )}
+          onPointerDown={(event) => event.stopPropagation()}
         >
           <div className="underline">{info.getValue()?.name}</div>
           <div className="text-xs text-muted-foreground">
@@ -142,6 +205,7 @@ const tasksColumns: Array<ColumnDefExt<TaskRow>> = [
           to={PATHS.packages.byId(
             info.row.original.packageId?.toString() || ''
           )}
+          onPointerDown={(event) => event.stopPropagation()}
         >
           <div className="underline">{info.row.original.packages?.name}</div>
           <div className="text-xs text-muted-foreground">

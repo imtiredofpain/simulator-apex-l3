@@ -9,7 +9,8 @@ import { productsEndpoints } from "@features/Products";
 import { apiLogsEndpoints } from "@features/ApiLogs";
 import { enumsEndpoints } from "./hooks/enums/endpoints";
 import { packagesEndpoints } from "@features/Packages";
-import { tasksEndpoints } from "@features/Tasks";
+import { tasksEndpoints } from '@features/Tasks/endpoints';
+import { adminJobsEndpoints } from '@features/Tasks/admin/endpoints';
 import { materialsEndpoints } from "@features/Materials";
 import { documentsEndpoints } from "@features/Reports";
 import { packsEndpoints } from "@features/Packs";
@@ -22,6 +23,7 @@ export const endpoints = assembleEndpoints({
   lines: linesEndpoints,
   packages: packagesEndpoints,
   tasks: tasksEndpoints,
+  adminJobs: adminJobsEndpoints,
   materials: materialsEndpoints,
   controlModules: controlModulesEndpoints,
   organizations: organizationsEndpoints,

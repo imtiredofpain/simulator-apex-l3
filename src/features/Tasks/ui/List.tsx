@@ -1,20 +1,22 @@
 import { endpoints, http } from '@shared/api/endpoints';
 import { useQuery } from '@tanstack/react-query';
-import type { TaskDto } from '../types.ts';
-import { tasksColumns } from '../models/TasksColums.tsx';
+import { createTasksColumns } from '../models/TasksColums.tsx';
 import { EntityList } from '@shared/components/EntityList';
 import { useNavigate } from 'react-router-dom';
 import { PATHS } from '@shared/config/pathRoute';
-import { memo } from 'react';
+import { memo, useMemo, useState } from 'react';
 import type { LineDto } from '@features/Lines/types.ts';
 import type { MaterialDto } from '@features/Materials/types.ts';
 import { apiClientInn } from '@shared/api/httpInn.ts';
 import type { PackageDto } from '@features/Packages/types.ts';
 import type { EnumsUnits } from "@shared/api/hooks/enums/types.ts";
+import type { AdminJobDto } from '../admin/types';
+import { AdminJobBulkActions, AdminJobsToolbar } from '../admin/ui';
+import type { AdminJobId } from '../admin/types';
 
 const queryFn = () =>
   Promise.all([
-    endpoints.tasks.list.call<TaskDto[]>(apiClientInn),
+    endpoints.adminJobs.list.call<AdminJobDto[]>(http),
     endpoints.lines.list.call<LineDto[]>(apiClientInn),
     endpoints.enums.get.call<EnumsUnits>(http, {
       params: {
@@ -32,8 +34,11 @@ const queryFn = () =>
 
 function TasksPage() {
   const navigate = useNavigate();
+  const [selectedIds, setSelectedIds] = useState<ReadonlySet<AdminJobId>>(
+    new Set()
+  );
   const { data, isLoading } = useQuery({
-    queryKey: [...endpoints.tasks.list.__tags],
+    queryKey: [...endpoints.adminJobs.list.__tags],
     queryFn,
     refetchInterval: 4000,
     select: ([tasks, lines, t, s, materials, packages]) => {
@@ -41,26 +46,53 @@ function TasksPage() {
         materials.data.map((material) => [material.id, material])
       );
       const mapPackages = new Map(packages.data.map((p) => [p.id, p]));
-      const mapLines = new Map(lines.data.map((line) => [line.id, line]));
+      const mapLines = new Map(
+        lines.data.map((line) => [String(line.id), line])
+      );
       const types = t.data;
       const statuses = s.data;
       return tasks.data.map((task) => {
+        const lineId = task.lineId == null ? '' : String(task.lineId);
+        const materialId = task.material?.id;
+        const packageId = task.package?.id;
         return {
           ...task,
-          line: mapLines.get(task.lineId),
+          lineId,
+          line: mapLines.get(lineId),
           type: types[task.jobType],
           statusStartTime: undefined,
           status: statuses[task.jobStatus],
-          material: task.materialId
-            ? mapMaterials.get(task.materialId)
-            : undefined,
-          packages: task.packageId
-            ? mapPackages.get(task.packageId)
-            : undefined,
+          materialId,
+          material: materialId ? mapMaterials.get(materialId) : undefined,
+          packageId,
+          packages: packageId ? mapPackages.get(packageId) : undefined,
+          plannedStartTime: task.plannedStartTime ?? '',
+          plannedEndTime: task.plannedEndTime ?? '',
+          actualStartTime: task.actualStartTime ?? undefined,
+          actualEndTime: task.actualEndTime ?? undefined,
+          retryAt: task.retryAt ?? '',
         };
       });
     },
   });
+
+  const selectedJobs = useMemo(
+    () => (data ?? []).filter((job) => selectedIds.has(job.id)),
+    [data, selectedIds]
+  );
+  const visibleSelectedIds = useMemo(
+    () => new Set(selectedJobs.map((job) => job.id)),
+    [selectedJobs]
+  );
+  const columns = useMemo(
+    () =>
+      createTasksColumns({
+        selectedIds: visibleSelectedIds,
+        visibleIds: (data ?? []).map((job) => job.id),
+        onSelectedIdsChange: setSelectedIds,
+      }),
+    [data, visibleSelectedIds]
+  );
 
   // if (!data) return null;
 
@@ -81,8 +113,17 @@ function TasksPage() {
         packages: false,
         status: false,
       }}
-      columns={tasksColumns}
+      columns={columns}
       isLoading={isLoading}
+      actionComponent={
+        <>
+          <AdminJobsToolbar />
+          <AdminJobBulkActions
+            selectedJobs={selectedJobs}
+            onSelectedIdsChange={setSelectedIds}
+          />
+        </>
+      }
       onCreate={() => {
         navigate(PATHS.tasks.create);
       }}

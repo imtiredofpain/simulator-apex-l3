@@ -16,6 +16,7 @@ interface EntityListProps<T> {
   isLoading: boolean;
 
   onCreate?: () => void;
+  actionComponent?: React.ReactNode;
   hiddenCreate?: boolean;
   hiddenColumns?: VirtualTableProps<T>['columnVisibility'];
   renderEmpty?: VirtualTableProps<T>['renderEmpty'];
@@ -40,6 +41,7 @@ export function EntityList<T>({
   columns,
   isLoading,
   onCreate,
+  actionComponent,
   hiddenCreate = false,
   hiddenColumns,
   renderEmpty,
@@ -115,16 +117,19 @@ export function EntityList<T>({
         )}
       </CardHeader>
 
-      {!hiddenCreate && onCreate && (
-        <div className="px-6 pb-6">
-          <Button
-            onClick={onCreate}
-            variant="submit"
-            className="dark:text-white"
-          >
-            <Plus className="w-4 h-4 mr-2" />
-            Создать
-          </Button>
+      {((!hiddenCreate && onCreate) || actionComponent) && (
+        <div className="px-6 pb-6 flex flex-wrap items-center gap-2">
+          {!hiddenCreate && onCreate && (
+            <Button
+              onClick={onCreate}
+              variant="submit"
+              className="dark:text-white"
+            >
+              <Plus className="w-4 h-4 mr-2" />
+              Создать
+            </Button>
+          )}
+          {actionComponent}
         </div>
       )}
 

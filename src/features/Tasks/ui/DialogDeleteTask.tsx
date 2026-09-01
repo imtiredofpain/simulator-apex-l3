@@ -12,11 +12,11 @@ import { Button } from '@shared/components/ui/button';
 import { Trash } from 'lucide-react';
 import { memo, useState } from 'react';
 import type { TaskDto } from '../types';
-import useQueryTask from '../hooks/useQueryTask';
 import { Spin } from '@mrdn/app-common';
 import { toast } from 'sonner';
-import { useMutationDeleteTask } from '../hooks/useMutationDeleteTask';
 import { useNavigate } from 'react-router-dom';
+import { useAdminJob, useRemoveAdminJob } from '../admin/hooks';
+import extractApiError from '@shared/api/extractApiError';
 
 interface DialogDeleteTaskProps {
   idTask: TaskDto['id'];
@@ -27,17 +27,25 @@ function DialogDeleteTask(props: DialogDeleteTaskProps) {
   const navigate = useNavigate();
   const { idTask: id } = props;
   const { data: { data: { job: task } = {} } = {}, isLoading: isLoadingTask } =
-    useQueryTask(id);
-  const { mutate: deleteTask, status: fetchStatus } = useMutationDeleteTask(
-    id,
-    (s) => {
-      if (s == 'success') {
+    useAdminJob(id);
+  const removeJob = useRemoveAdminJob();
+  const isLoadingDeleteTask = removeJob.isPending;
+
+  const deleteTask = () => {
+    removeJob.mutate(id, {
+      onSuccess: () => {
+        toast.success('Задание удалено');
         setOpen(false);
         navigate(-1);
-      } else toast.error('При удалении задания произошла ошибка');
-    }
-  );
-  const isLoadingDeleteTask = fetchStatus === 'pending';
+      },
+      onError: (error) => {
+        const apiError = extractApiError(error);
+        toast.error('При удалении задания произошла ошибка', {
+          description: apiError.message,
+        });
+      },
+    });
+  };
 
   return (
     <AlertDialog open={open} onOpenChange={setOpen}>
