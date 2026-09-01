@@ -27,8 +27,21 @@ export interface DashboardDocumentsDto {
   completed: number;
   failed: number;
   withErrors: number;
+  eligibleNow: number;
+  scheduled: number;
+  blocked: number;
+  oldestEligibleAt: string | null;
+  oldestEligibleAgeSeconds: number | null;
   byType: Record<string, number>;
   byStatus: Record<string, number>;
+  queueGroups: DashboardDocumentQueueGroupDto[];
+}
+
+export interface DashboardDocumentQueueGroupDto {
+  organizationId: number;
+  documentType: string;
+  status: string;
+  count: number;
 }
 
 export interface DashboardJobsDto {
@@ -37,6 +50,17 @@ export interface DashboardJobsDto {
   withErrors: number;
   active: number;
   terminal: number;
+  eligibleNow: number;
+  scheduled: number;
+  oldestEligibleAt: string | null;
+  oldestEligibleAgeSeconds: number | null;
+  queueGroups: DashboardJobQueueGroupDto[];
+}
+
+export interface DashboardJobQueueGroupDto {
+  organizationId: number;
+  status: string;
+  count: number;
 }
 
 export interface DashboardPacksDto {
@@ -46,19 +70,32 @@ export interface DashboardPacksDto {
 
 export interface DashboardJobServiceDto {
   health: DashboardServiceHealthDto;
+  lastProgressAt: string | null;
+  secondsSinceLastProgress: number | null;
+  isProgressStalled: boolean;
   processed: DashboardMetricWindowDto;
   failed: DashboardMetricWindowDto;
   timeout: DashboardMetricWindowDto;
+  progressed: DashboardMetricWindowDto;
+  withoutProgress: DashboardMetricWindowDto;
   processingTime: DashboardProcessingTimeDto;
   activeJobsCount: number;
-  activeJobs: Record<string, unknown>;
+  activeJobs: Record<string, string>;
 }
 
 export interface DashboardDocumentServiceDto {
   health: DashboardServiceHealthDto;
+  lastProgressAt: string | null;
+  secondsSinceLastProgress: number | null;
+  isProgressStalled: boolean;
   processed: DashboardMetricWindowDto;
   failed: DashboardMetricWindowDto;
+  progressed: DashboardMetricWindowDto;
+  withoutProgress: DashboardMetricWindowDto;
   processingTime: DashboardProcessingTimeDto;
+  unknownDocumentTypeCount: number;
+  activeDocumentsCount: number;
+  activeDocuments: Record<string, string>;
 }
 
 export interface DashboardBufferServiceDto {

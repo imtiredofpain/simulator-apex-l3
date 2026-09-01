@@ -27,8 +27,10 @@ import { useQueryDashboard } from "../hooks/useQueryDashboard";
 import type {
   DashboardBufferServiceDto,
   DashboardDocumentServiceDto,
+  DashboardDocumentsDto,
   DashboardDto,
   DashboardJobServiceDto,
+  DashboardJobsDto,
   DashboardMetricWindowDto,
   DashboardProcessingTimeDto,
   DashboardServiceHealthDto,
@@ -65,6 +67,21 @@ function formatDateTime(value: string) {
   const date = new Date(value);
   if (Number.isNaN(date.getTime())) return value;
   return date.toLocaleString("ru-RU");
+}
+
+function formatDuration(value: number | null) {
+  if (value === null) return "—";
+
+  const totalSeconds = Math.max(0, Math.round(value));
+  const days = Math.floor(totalSeconds / 86_400);
+  const hours = Math.floor((totalSeconds % 86_400) / 3_600);
+  const minutes = Math.floor((totalSeconds % 3_600) / 60);
+  const seconds = totalSeconds % 60;
+
+  if (days > 0) return `${days} д ${hours} ч`;
+  if (hours > 0) return `${hours} ч ${minutes} мин`;
+  if (minutes > 0) return `${minutes} мин ${seconds} сек`;
+  return `${seconds} сек`;
 }
 
 function formatLabel(value: string) {
@@ -275,17 +292,22 @@ function ProcessingTimeCard({
 
 function ServiceCard({
   health,
+  operationalIssue = false,
+  operationalIssueLabel,
   children,
 }: {
   health: DashboardServiceHealthDto;
+  operationalIssue?: boolean;
+  operationalIssueLabel?: string;
   children: ReactNode;
 }) {
+  const hasIssue =
+    !health.isRunning || health.isStalled || operationalIssue;
+
   return (
     <Card
       className={`overflow-hidden border-border/70 bg-card/75 ${
-        health.isRunning && !health.isStalled
-          ? "border-t-emerald-500/60"
-          : "border-t-destructive/70"
+        hasIssue ? "border-t-destructive/70" : "border-t-emerald-500/60"
       } border-t-2`}
     >
       <CardHeader className="gap-4 border-b border-border/50 p-5">
@@ -302,8 +324,12 @@ function ServiceCard({
               Heartbeat: {formatDateTime(health.lastHeartbeat)}
             </CardDescription>
           </div>
-          <Badge variant={getHealthVariant(health)}>
-            {getHealthLabel(health)}
+          <Badge
+            variant={hasIssue ? "destructive" : getHealthVariant(health)}
+          >
+            {operationalIssue && health.isRunning && !health.isStalled
+              ? operationalIssueLabel
+              : getHealthLabel(health)}
           </Badge>
         </div>
         <div className="grid grid-cols-2 gap-3 rounded-xl bg-muted/25 p-3 text-sm">
@@ -328,31 +354,81 @@ function ServiceCard({
   );
 }
 
+function ServiceProgressCard({
+  lastProgressAt,
+  secondsSinceLastProgress,
+  isProgressStalled,
+}: {
+  lastProgressAt: string | null;
+  secondsSinceLastProgress: number | null;
+  isProgressStalled: boolean;
+}) {
+  return (
+    <div
+      className={`rounded-xl border p-3.5 ${
+        isProgressStalled
+          ? "border-destructive/35 bg-destructive/5"
+          : "border-emerald-500/20 bg-emerald-500/5"
+      }`}
+    >
+      <div className="flex items-start justify-between gap-3">
+        <div>
+          <p className="technical-label text-foreground/55">
+            Последний прогресс
+          </p>
+          <p className="mt-1 text-sm font-semibold">
+            {lastProgressAt
+              ? formatDateTime(lastProgressAt)
+              : "Ещё не зафиксирован"}
+          </p>
+        </div>
+        <Badge variant={isProgressStalled ? "destructive" : "success"}>
+          {isProgressStalled ? "Нет прогресса" : "Штатно"}
+        </Badge>
+      </div>
+      <p className="mt-2 text-xs text-muted-foreground">
+        Без изменения состояния: {formatDuration(secondsSinceLastProgress)}
+      </p>
+    </div>
+  );
+}
+
 function JobServiceCard({ service }: { service: DashboardJobServiceDto }) {
   const activeJobs = Object.entries(service.activeJobs);
 
   return (
-    <ServiceCard health={service.health}>
+    <ServiceCard
+      health={service.health}
+      operationalIssue={service.isProgressStalled}
+      operationalIssueLabel="Нет прогресса"
+    >
+      <ServiceProgressCard
+        lastProgressAt={service.lastProgressAt}
+        secondsSinceLastProgress={service.secondsSinceLastProgress}
+        isProgressStalled={service.isProgressStalled}
+      />
       <MetricWindow title="Обработано" metric={service.processed} />
       <MetricWindow title="Ошибки" metric={service.failed} />
       <MetricWindow title="Таймауты" metric={service.timeout} />
+      <MetricWindow title="С продвижением" metric={service.progressed} />
+      <MetricWindow title="Без продвижения" metric={service.withoutProgress} />
       <ProcessingTimeCard processingTime={service.processingTime} />
       <div className="rounded-lg border border-border/60 p-3">
         <p className="text-sm font-medium">
-          Активные задачи: {formatInteger(service.activeJobsCount)}
+          Задания в обработке: {formatInteger(service.activeJobsCount)}
         </p>
         {activeJobs.length === 0 ? (
           <p className="mt-2 text-sm text-muted-foreground">
-            Сейчас активных задач нет.
+            Сейчас активных заданий нет.
           </p>
         ) : (
-          <div className="mt-2 flex flex-col gap-2">
-            {activeJobs.map(([key, value]) => (
-              <div key={key} className="rounded-md bg-muted/40 p-2 text-sm">
-                <p className="font-medium">{key}</p>
-                <pre className="mt-1 overflow-auto whitespace-pre-wrap break-words text-xs text-muted-foreground">
-                  {renderUnknown(value)}
-                </pre>
+          <div className="mt-2 flex max-h-48 flex-col gap-2 overflow-y-auto pr-1">
+            {activeJobs.map(([jobId, startedAt]) => (
+              <div key={jobId} className="rounded-md bg-muted/40 p-2 text-sm">
+                <p className="font-medium">Задание #{jobId}</p>
+                <p className="mt-1 text-xs text-muted-foreground">
+                  Обрабатывается с {formatDateTime(startedAt)}
+                </p>
               </div>
             ))}
           </div>
@@ -367,11 +443,63 @@ function DocumentServiceCard({
 }: {
   service: DashboardDocumentServiceDto;
 }) {
+  const activeDocuments = Object.entries(service.activeDocuments);
+
   return (
-    <ServiceCard health={service.health}>
+    <ServiceCard
+      health={service.health}
+      operationalIssue={service.isProgressStalled}
+      operationalIssueLabel="Нет прогресса"
+    >
+      <ServiceProgressCard
+        lastProgressAt={service.lastProgressAt}
+        secondsSinceLastProgress={service.secondsSinceLastProgress}
+        isProgressStalled={service.isProgressStalled}
+      />
       <MetricWindow title="Обработано" metric={service.processed} />
       <MetricWindow title="Ошибки" metric={service.failed} />
+      <MetricWindow title="С продвижением" metric={service.progressed} />
+      <MetricWindow title="Без продвижения" metric={service.withoutProgress} />
       <ProcessingTimeCard processingTime={service.processingTime} />
+      <div className="grid grid-cols-2 gap-3">
+        <div className="rounded-lg border border-border/60 p-3">
+          <p className="text-sm text-muted-foreground">Активные документы</p>
+          <p className="text-xl font-semibold">
+            {formatInteger(service.activeDocumentsCount)}
+          </p>
+        </div>
+        <div
+          className={`rounded-lg border p-3 ${
+            service.unknownDocumentTypeCount > 0
+              ? "border-amber-500/30 bg-amber-500/5"
+              : "border-border/60"
+          }`}
+        >
+          <p className="text-sm text-muted-foreground">Неизвестный тип</p>
+          <p className="text-xl font-semibold">
+            {formatInteger(service.unknownDocumentTypeCount)}
+          </p>
+        </div>
+      </div>
+      <div className="rounded-lg border border-border/60 p-3">
+        <p className="text-sm font-medium">Документы в обработке</p>
+        {activeDocuments.length === 0 ? (
+          <p className="mt-2 text-sm text-muted-foreground">
+            Сейчас активных документов нет.
+          </p>
+        ) : (
+          <div className="mt-2 flex max-h-48 flex-col gap-2 overflow-y-auto pr-1">
+            {activeDocuments.map(([id, startedAt]) => (
+              <div key={id} className="rounded-md bg-muted/40 p-2 text-xs">
+                <p className="break-all font-medium">{id}</p>
+                <p className="mt-1 text-muted-foreground">
+                  С {formatDateTime(startedAt)}
+                </p>
+              </div>
+            ))}
+          </div>
+        )}
+      </div>
     </ServiceCard>
   );
 }
@@ -419,15 +547,276 @@ function BufferServiceCard({
   );
 }
 
+function JobQueueCard({ jobs }: { jobs: DashboardJobsDto }) {
+  const queueGroups = [...jobs.queueGroups].sort(
+    (left, right) => right.count - left.count,
+  );
+  const queuedTotal = queueGroups.reduce(
+    (total, group) => total + group.count,
+    0,
+  );
+
+  return (
+    <Card className="overflow-hidden border-border/70 bg-card/75">
+      <CardHeader className="border-b border-border/50 p-5">
+        <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
+          <div>
+            <div className="mb-1 flex items-center gap-2 text-blue-500">
+              <Workflow className="size-4" />
+              <span className="technical-label">Job queue</span>
+            </div>
+            <CardTitle className="text-lg">Состояние очереди заданий</CardTitle>
+            <CardDescription className="mt-1">
+              Задания, доступные обработчику сейчас, и отложенные повторы.
+            </CardDescription>
+          </div>
+          <Badge variant="outline" className="w-fit bg-background/45">
+            Групп в очереди: {formatInteger(queueGroups.length)}
+          </Badge>
+        </div>
+      </CardHeader>
+      <CardContent className="flex flex-col gap-5 p-5">
+        <div className="grid gap-3 sm:grid-cols-3">
+          <div className="rounded-xl border border-blue-500/25 bg-blue-500/5 p-4">
+            <p className="text-sm text-muted-foreground">Готовы к обработке</p>
+            <p className="mt-1 text-2xl font-semibold">
+              {formatInteger(jobs.eligibleNow)}
+            </p>
+            <p className="mt-1 text-xs text-muted-foreground">
+              Могут быть взяты JobService сейчас
+            </p>
+          </div>
+          <div className="rounded-xl border border-cyan-500/25 bg-cyan-500/5 p-4">
+            <p className="text-sm text-muted-foreground">Запланированы</p>
+            <p className="mt-1 text-2xl font-semibold">
+              {formatInteger(jobs.scheduled)}
+            </p>
+            <p className="mt-1 text-xs text-muted-foreground">
+              Ожидают наступления времени повтора
+            </p>
+          </div>
+          <div className="rounded-xl border border-border/60 bg-muted/15 p-4">
+            <p className="text-sm text-muted-foreground">Всего в группах</p>
+            <p className="mt-1 text-2xl font-semibold">
+              {formatInteger(queuedTotal)}
+            </p>
+            <p className="mt-1 text-xs text-muted-foreground">
+              Активные статусы по организациям
+            </p>
+          </div>
+        </div>
+
+        <div className="flex flex-col gap-3 rounded-xl border border-border/60 bg-muted/15 p-4 sm:flex-row sm:items-center sm:justify-between">
+          <div>
+            <p className="technical-label text-foreground/55">
+              Дольше всех ожидает обработки
+            </p>
+            <p className="mt-1 text-sm font-semibold">
+              {jobs.oldestEligibleAt
+                ? formatDateTime(jobs.oldestEligibleAt)
+                : "Нет заданий, готовых к обработке"}
+            </p>
+          </div>
+          <div className="sm:text-right">
+            <p className="text-xs text-muted-foreground">
+              Ожидает обработки
+            </p>
+            <p className="text-lg font-semibold">
+              {formatDuration(jobs.oldestEligibleAgeSeconds)}
+            </p>
+          </div>
+        </div>
+
+        <div className="space-y-3">
+          <div className="flex items-center justify-between gap-3">
+            <p className="text-sm font-medium">Группы активных заданий</p>
+            <span className="text-xs text-muted-foreground">
+              Организация · статус
+            </span>
+          </div>
+          {queueGroups.length === 0 ? (
+            <div className="rounded-xl border border-emerald-500/20 bg-emerald-500/5 p-4 text-sm text-emerald-600 dark:text-emerald-300">
+              Очередь активных заданий пуста.
+            </div>
+          ) : (
+            <div className="max-h-72 overflow-y-auto rounded-xl border border-border/60">
+              <div className="hidden grid-cols-[minmax(0,1fr)_minmax(0,2fr)_auto] gap-4 border-b border-border/60 bg-muted/30 px-4 py-2 text-xs font-medium text-muted-foreground sm:grid">
+                <span>Организация</span>
+                <span>Статус</span>
+                <span>Количество</span>
+              </div>
+              {queueGroups.map((group) => (
+                <div
+                  key={`${group.organizationId}-${group.status}`}
+                  className="grid gap-2 border-b border-border/50 px-4 py-3 text-sm last:border-b-0 sm:grid-cols-[minmax(0,1fr)_minmax(0,2fr)_auto] sm:items-center sm:gap-4"
+                >
+                  <span className="font-medium">
+                    <span className="mr-1 text-muted-foreground sm:hidden">
+                      Организация:
+                    </span>
+                    {group.organizationId}
+                  </span>
+                  <span className="break-words text-muted-foreground">
+                    {formatLabel(group.status)}
+                  </span>
+                  <Badge variant="secondary" className="w-fit tabular-nums">
+                    {formatInteger(group.count)}
+                  </Badge>
+                </div>
+              ))}
+            </div>
+          )}
+        </div>
+      </CardContent>
+    </Card>
+  );
+}
+
+function DocumentQueueCard({
+  documents,
+}: {
+  documents: DashboardDocumentsDto;
+}) {
+  const queueGroups = [...documents.queueGroups].sort(
+    (left, right) => right.count - left.count,
+  );
+
+  return (
+    <Card className="overflow-hidden border-border/70 bg-card/75">
+      <CardHeader className="border-b border-border/50 p-5">
+        <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
+          <div>
+            <div className="mb-1 flex items-center gap-2 text-violet-500">
+              <Workflow className="size-4" />
+              <span className="technical-label">Document queue</span>
+            </div>
+            <CardTitle className="text-lg">Состояние очереди документов</CardTitle>
+            <CardDescription className="mt-1">
+              Готовность к обработке, отложенные повторы и ожидающие документы.
+            </CardDescription>
+          </div>
+          <Badge variant="outline" className="w-fit bg-background/45">
+            Групп в очереди: {formatInteger(queueGroups.length)}
+          </Badge>
+        </div>
+      </CardHeader>
+      <CardContent className="flex flex-col gap-5 p-5">
+        <div className="grid gap-3 sm:grid-cols-3">
+          <div className="rounded-xl border border-violet-500/25 bg-violet-500/5 p-4">
+            <p className="text-sm text-muted-foreground">Готовы сейчас</p>
+            <p className="mt-1 text-2xl font-semibold">
+              {formatInteger(documents.eligibleNow)}
+            </p>
+            <p className="mt-1 text-xs text-muted-foreground">
+              Могут быть взяты сервисом
+            </p>
+          </div>
+          <div className="rounded-xl border border-blue-500/25 bg-blue-500/5 p-4">
+            <p className="text-sm text-muted-foreground">Запланированы</p>
+            <p className="mt-1 text-2xl font-semibold">
+              {formatInteger(documents.scheduled)}
+            </p>
+            <p className="mt-1 text-xs text-muted-foreground">
+              Ожидают времени повтора
+            </p>
+          </div>
+          <div
+            className={`rounded-xl border p-4 ${
+              documents.blocked > 0
+                ? "border-amber-500/30 bg-amber-500/5"
+                : "border-border/60 bg-muted/15"
+            }`}
+          >
+            <p className="text-sm text-muted-foreground">Заблокированы</p>
+            <p className="mt-1 text-2xl font-semibold">
+              {formatInteger(documents.blocked)}
+            </p>
+            <p className="mt-1 text-xs text-muted-foreground">
+              Ожидают внешнего действия
+            </p>
+          </div>
+        </div>
+
+        <div className="flex flex-col gap-3 rounded-xl border border-border/60 bg-muted/15 p-4 sm:flex-row sm:items-center sm:justify-between">
+          <div>
+            <p className="technical-label text-foreground/55">
+              Дольше всех ожидает обработки
+            </p>
+            <p className="mt-1 text-sm font-semibold">
+              {documents.oldestEligibleAt
+                ? formatDateTime(documents.oldestEligibleAt)
+                : "Нет документов, ожидающих обработки"}
+            </p>
+          </div>
+          <div className="sm:text-right">
+            <p className="text-xs text-muted-foreground">
+              Время ожидания обработки
+            </p>
+            <p className="text-lg font-semibold">
+              {formatDuration(documents.oldestEligibleAgeSeconds)}
+            </p>
+          </div>
+        </div>
+
+        <div className="space-y-3">
+          <div className="flex items-center justify-between gap-3">
+            <p className="text-sm font-medium">Незавершённые группы</p>
+            <span className="text-xs text-muted-foreground">
+              Организация · тип · статус
+            </span>
+          </div>
+          {queueGroups.length === 0 ? (
+            <div className="rounded-xl border border-emerald-500/20 bg-emerald-500/5 p-4 text-sm text-emerald-600 dark:text-emerald-300">
+              Очередь незавершённых документов пуста.
+            </div>
+          ) : (
+            <div className="max-h-80 overflow-y-auto rounded-xl border border-border/60">
+              <div className="hidden grid-cols-[minmax(0,1fr)_minmax(0,2fr)_minmax(0,1.2fr)_auto] gap-4 border-b border-border/60 bg-muted/30 px-4 py-2 text-xs font-medium text-muted-foreground sm:grid">
+                <span>Организация</span>
+                <span>Тип документа</span>
+                <span>Статус</span>
+                <span>Количество</span>
+              </div>
+              {queueGroups.map((group) => (
+                <div
+                  key={`${group.organizationId}-${group.documentType}-${group.status}`}
+                  className="grid gap-2 border-b border-border/50 px-4 py-3 text-sm last:border-b-0 sm:grid-cols-[minmax(0,1fr)_minmax(0,2fr)_minmax(0,1.2fr)_auto] sm:items-center sm:gap-4"
+                >
+                  <span className="font-medium">
+                    <span className="mr-1 text-muted-foreground sm:hidden">
+                      Организация:
+                    </span>
+                    {group.organizationId}
+                  </span>
+                  <span className="break-words text-muted-foreground">
+                    {formatLabel(group.documentType)}
+                  </span>
+                  <span className="break-words">{formatLabel(group.status)}</span>
+                  <Badge variant="secondary" className="w-fit tabular-nums">
+                    {formatInteger(group.count)}
+                  </Badge>
+                </div>
+              ))}
+            </div>
+          )}
+        </div>
+      </CardContent>
+    </Card>
+  );
+}
+
 function OverviewCards({ dashboard }: { dashboard: DashboardDto }) {
-  const services = [
-    dashboard.backgroundServices.jobService.health,
-    dashboard.backgroundServices.documentService.health,
-    dashboard.backgroundServices.bufferService.health,
+  const serviceStates = [
+    dashboard.backgroundServices.jobService.health.isRunning &&
+      !dashboard.backgroundServices.jobService.health.isStalled &&
+      !dashboard.backgroundServices.jobService.isProgressStalled,
+    dashboard.backgroundServices.documentService.health.isRunning &&
+      !dashboard.backgroundServices.documentService.health.isStalled &&
+      !dashboard.backgroundServices.documentService.isProgressStalled,
+    dashboard.backgroundServices.bufferService.health.isRunning &&
+      !dashboard.backgroundServices.bufferService.health.isStalled,
   ];
-  const healthyServices = services.filter(
-    (service) => service.isRunning && !service.isStalled,
-  ).length;
+  const healthyServices = serviceStates.filter(Boolean).length;
 
   return (
     <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-4">
@@ -441,7 +830,7 @@ function OverviewCards({ dashboard }: { dashboard: DashboardDto }) {
       <StatCard
         title="Задачи"
         value={formatInteger(dashboard.jobs.total)}
-        description={`Активных: ${formatInteger(dashboard.jobs.active)}, терминальных: ${formatInteger(dashboard.jobs.terminal)}`}
+        description={`Готовы сейчас: ${formatInteger(dashboard.jobs.eligibleNow)}, отложены: ${formatInteger(dashboard.jobs.scheduled)}`}
         icon={Workflow}
         tone="blue"
       />
@@ -500,15 +889,18 @@ export function SystemDashboard() {
   const documentStatuses = mapEntries(dashboard.documents.byStatus);
   const jobStatuses = mapEntries(dashboard.jobs.byStatus);
   const packStatuses = mapEntries(dashboard.packs.byStatus);
-  const services = [
-    dashboard.backgroundServices.jobService.health,
-    dashboard.backgroundServices.documentService.health,
-    dashboard.backgroundServices.bufferService.health,
+  const serviceStates = [
+    dashboard.backgroundServices.jobService.health.isRunning &&
+      !dashboard.backgroundServices.jobService.health.isStalled &&
+      !dashboard.backgroundServices.jobService.isProgressStalled,
+    dashboard.backgroundServices.documentService.health.isRunning &&
+      !dashboard.backgroundServices.documentService.health.isStalled &&
+      !dashboard.backgroundServices.documentService.isProgressStalled,
+    dashboard.backgroundServices.bufferService.health.isRunning &&
+      !dashboard.backgroundServices.bufferService.health.isStalled,
   ];
-  const healthyServices = services.filter(
-    (service) => service.isRunning && !service.isStalled,
-  ).length;
-  const isSystemHealthy = healthyServices === services.length;
+  const healthyServices = serviceStates.filter(Boolean).length;
+  const isSystemHealthy = healthyServices === serviceStates.length;
 
   return (
     <section className="flex flex-col gap-5 py-1">
@@ -571,7 +963,35 @@ export function SystemDashboard() {
             </span>
           </Badge>
           <Badge variant="outline" className="bg-background/45">
-            Сервисы в работе: {healthyServices}/{services.length}
+            Сервисы в работе: {healthyServices}/{serviceStates.length}
+          </Badge>
+          <Badge
+            variant={
+              dashboard.backgroundServices.documentService.isProgressStalled
+                ? "destructive"
+                : "outline"
+            }
+            className={
+              dashboard.backgroundServices.documentService.isProgressStalled
+                ? undefined
+                : "bg-background/45"
+            }
+          >
+            Документы готовы: {formatInteger(dashboard.documents.eligibleNow)}
+          </Badge>
+          <Badge
+            variant={
+              dashboard.backgroundServices.jobService.isProgressStalled
+                ? "destructive"
+                : "outline"
+            }
+            className={
+              dashboard.backgroundServices.jobService.isProgressStalled
+                ? undefined
+                : "bg-background/45"
+            }
+          >
+            Задания готовы: {formatInteger(dashboard.jobs.eligibleNow)}
           </Badge>
           <Button
             variant="outline"
@@ -588,6 +1008,10 @@ export function SystemDashboard() {
       </div>
 
       <OverviewCards dashboard={dashboard} />
+
+      <JobQueueCard jobs={dashboard.jobs} />
+
+      <DocumentQueueCard documents={dashboard.documents} />
 
       <div className="flex items-end justify-between pt-2">
         <div>
