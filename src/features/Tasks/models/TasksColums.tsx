@@ -9,6 +9,14 @@ import type { MaterialDto } from '@features/Materials';
 import type { PackageDto } from '@features/Packages';
 import type { EnumUnit } from "@shared/api/hooks/enums/types";
 import { Checkbox } from '@shared/components/ui/checkbox';
+import {
+  createContext,
+  type Dispatch,
+  type ReactNode,
+  type SetStateAction,
+  useContext,
+  useMemo,
+} from 'react';
 
 export interface TaskRow {
   id: TaskDto["id"];
@@ -39,52 +47,111 @@ export interface TaskRow {
 
 const col = createColumnHelperExt<TaskRow>();
 
-interface TaskSelectionColumnOptions {
+interface TaskSelectionContextValue {
   selectedIds: ReadonlySet<TaskRow['id']>;
   visibleIds: TaskRow['id'][];
-  onSelectedIdsChange: (ids: ReadonlySet<TaskRow['id']>) => void;
+  onSelectedIdsChange: Dispatch<
+    SetStateAction<ReadonlySet<TaskRow['id']>>
+  >;
 }
 
-export function createTasksColumns({
+const TaskSelectionContext = createContext<TaskSelectionContextValue | null>(
+  null
+);
+
+interface TaskSelectionProviderProps extends TaskSelectionContextValue {
+  children: ReactNode;
+}
+
+export function TaskSelectionProvider({
   selectedIds,
   visibleIds,
   onSelectedIdsChange,
-}: TaskSelectionColumnOptions): Array<ColumnDefExt<TaskRow>> {
+  children,
+}: TaskSelectionProviderProps) {
+  const value = useMemo(
+    () => ({ selectedIds, visibleIds, onSelectedIdsChange }),
+    [selectedIds, visibleIds, onSelectedIdsChange]
+  );
+
+  return (
+    <TaskSelectionContext.Provider value={value}>
+      {children}
+    </TaskSelectionContext.Provider>
+  );
+}
+
+function useTaskSelection() {
+  const context = useContext(TaskSelectionContext);
+
+  if (!context) {
+    throw new Error(
+      'Task selection controls must be rendered inside TaskSelectionProvider'
+    );
+  }
+
+  return context;
+}
+
+function TaskSelectionHeader() {
+  const { selectedIds, visibleIds, onSelectedIdsChange } = useTaskSelection();
   const selectedVisibleCount = visibleIds.filter((id) => selectedIds.has(id)).length;
   const allVisibleSelected =
     visibleIds.length > 0 && selectedVisibleCount === visibleIds.length;
+
+  return (
+    <Checkbox
+      aria-label="Выбрать все задания"
+      checked={
+        allVisibleSelected
+          ? true
+          : selectedVisibleCount > 0
+            ? 'indeterminate'
+            : false
+      }
+      onCheckedChange={(checked) => {
+        onSelectedIdsChange((currentIds) => {
+          const next = new Set(currentIds);
+
+          for (const id of visibleIds) {
+            if (checked === true) next.add(id);
+            else next.delete(id);
+          }
+
+          return next;
+        });
+      }}
+    />
+  );
+}
+
+function TaskSelectionCell({ job }: { job: TaskRow }) {
+  const { selectedIds, onSelectedIdsChange } = useTaskSelection();
+  const selected = selectedIds.has(job.id);
+
+  return (
+    <Checkbox
+      aria-label={`Выбрать задание ${job.jobNumber}`}
+      checked={selected}
+      onCheckedChange={(checked) => {
+        onSelectedIdsChange((currentIds) => {
+          const next = new Set(currentIds);
+
+          if (checked === true) next.add(job.id);
+          else next.delete(job.id);
+
+          return next;
+        });
+      }}
+    />
+  );
+}
+
+export function createTasksColumns(): Array<ColumnDefExt<TaskRow>> {
   const selectionColumn: ColumnDefExt<TaskRow> = {
     id: 'selection',
-    header: () => (
-      <Checkbox
-        aria-label="Выбрать все задания"
-        checked={
-          allVisibleSelected
-            ? true
-            : selectedVisibleCount > 0
-              ? 'indeterminate'
-              : false
-        }
-        onCheckedChange={(checked) =>
-          onSelectedIdsChange(checked === true ? new Set(visibleIds) : new Set())
-        }
-      />
-    ),
-    cell: (info) => {
-      const jobId = info.row.original.id;
-      return (
-        <Checkbox
-          aria-label={`Выбрать задание ${info.row.original.jobNumber}`}
-          checked={selectedIds.has(jobId)}
-          onCheckedChange={(checked) => {
-            const next = new Set(selectedIds);
-            if (checked === true) next.add(jobId);
-            else next.delete(jobId);
-            onSelectedIdsChange(next);
-          }}
-        />
-      );
-    },
+    header: () => <TaskSelectionHeader />,
+    cell: (info) => <TaskSelectionCell job={info.row.original} />,
     meta: {
       align: 'center',
       widthPx: 44,

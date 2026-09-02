@@ -36,7 +36,8 @@ import {
 } from '@shared/components/ui/select';
 import { useSelectedInn, useSetSelectedInn } from '@features/Organizations';
 import { useQueryOrganizations } from '@features/Organizations/hooks/useQueryOrganizations';
-import { Activity, Building2 } from 'lucide-react';
+import { useNow } from '@mrdn/app-common';
+import { Activity, Building2, Clock3 } from 'lucide-react';
 
 /** ================= Типы крошек (без any) ================= */
 type CrumbMeta = { title?: string };
@@ -75,6 +76,28 @@ const renderLabel = (c: Crumb): React.ReactNode => {
 };
 
 const HYSTERESIS = 24; // px запас против "дёрганья"
+
+const timeFormatter = new Intl.DateTimeFormat('ru-RU', {
+  hour: '2-digit',
+  minute: '2-digit',
+  second: '2-digit',
+  hour12: false,
+});
+
+const CurrentTime = memo(function CurrentTime() {
+  const now = useNow(1000);
+
+  return (
+    <time
+      dateTime={now.toISOString()}
+      title={now.toLocaleString('ru-RU')}
+      className="hidden items-center gap-1.5 rounded-full border border-border/70 bg-card/75 px-3 py-1.5 text-xs font-semibold text-foreground/70 tabular-nums xl:flex"
+    >
+      <Clock3 className="size-3.5" />
+      {timeFormatter.format(now)}
+    </time>
+  );
+});
 
 function HeaderBar() {
   const selectedInn = useSelectedInn();
@@ -331,6 +354,7 @@ function HeaderBar() {
         </div>
       </div>
       <div className="flex shrink-0 items-center gap-3">
+        <CurrentTime />
         <div className="hidden items-center gap-2 rounded-full border border-emerald-500/20 bg-emerald-500/8 px-3 py-1.5 text-xs font-semibold text-emerald-600 dark:text-emerald-400 xl:flex">
           <span className="relative flex size-2">
             <span className="absolute inline-flex size-full animate-ping rounded-full bg-emerald-400 opacity-60" />

@@ -1,6 +1,9 @@
 import { endpoints, http } from '@shared/api/endpoints';
 import { useQuery } from '@tanstack/react-query';
-import { createTasksColumns } from '../models/TasksColums.tsx';
+import {
+  createTasksColumns,
+  TaskSelectionProvider,
+} from '../models/TasksColums.tsx';
 import { EntityList } from '@shared/components/EntityList';
 import { useNavigate } from 'react-router-dom';
 import { PATHS } from '@shared/config/pathRoute';
@@ -84,50 +87,52 @@ function TasksPage() {
     () => new Set(selectedJobs.map((job) => job.id)),
     [selectedJobs]
   );
-  const columns = useMemo(
-    () =>
-      createTasksColumns({
-        selectedIds: visibleSelectedIds,
-        visibleIds: (data ?? []).map((job) => job.id),
-        onSelectedIdsChange: setSelectedIds,
-      }),
-    [data, visibleSelectedIds]
+  const visibleIds = useMemo(
+    () => (data ?? []).map((job) => job.id),
+    [data]
   );
+  const columns = useMemo(() => createTasksColumns(), []);
 
   // if (!data) return null;
 
   return (
-    <EntityList
-      search={{
-        placeholder: "Поиск по заданиям...",
-      }}
-      title={"Задания"}
-      data={data || []}
-      hiddenColumns={{
-        id: false,
-        lineId: false,
-        actualStartTime: false,
-        actualEndTime: false,
-        materialId: false,
-        packageId: false,
-        packages: false,
-        status: false,
-      }}
-      columns={columns}
-      isLoading={isLoading}
-      actionComponent={
-        <>
-          <AdminJobsToolbar />
-          <AdminJobBulkActions
-            selectedJobs={selectedJobs}
-            onSelectedIdsChange={setSelectedIds}
-          />
-        </>
-      }
-      onCreate={() => {
-        navigate(PATHS.tasks.create);
-      }}
-    />
+    <TaskSelectionProvider
+      selectedIds={visibleSelectedIds}
+      visibleIds={visibleIds}
+      onSelectedIdsChange={setSelectedIds}
+    >
+      <EntityList
+        search={{
+          placeholder: "Поиск по заданиям...",
+        }}
+        title={"Задания"}
+        data={data || []}
+        hiddenColumns={{
+          id: false,
+          lineId: false,
+          actualStartTime: false,
+          actualEndTime: false,
+          materialId: false,
+          packageId: false,
+          packages: false,
+          status: false,
+        }}
+        columns={columns}
+        isLoading={isLoading}
+        actionComponent={
+          <>
+            <AdminJobsToolbar />
+            <AdminJobBulkActions
+              selectedJobs={selectedJobs}
+              onSelectedIdsChange={setSelectedIds}
+            />
+          </>
+        }
+        onCreate={() => {
+          navigate(PATHS.tasks.create);
+        }}
+      />
+    </TaskSelectionProvider>
   );
 }
 
