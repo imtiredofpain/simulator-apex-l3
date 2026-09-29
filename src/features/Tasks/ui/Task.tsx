@@ -1,35 +1,35 @@
-import { SimplePage } from '@shared/components/SimplePage';
-import { Button } from '@shared/components/ui/button';
-import { Badge, SquarePen } from 'lucide-react';
-import { useNavigate, useParams } from 'react-router-dom';
-import { memo } from 'react';
-import { PATHS } from '@shared/config/pathRoute';
-import useEnum from '@shared/api/hooks/enums/useEnum';
+import { SimplePage } from "@shared/components/SimplePage";
+import { Button } from "@shared/components/ui/button";
+import { Badge, SquarePen } from "lucide-react";
+import { useNavigate, useParams } from "react-router-dom";
+import { memo } from "react";
+import { PATHS } from "@shared/config/pathRoute";
+import useEnum from "@shared/api/hooks/enums/useEnum";
 import {
   Tooltip,
   TooltipContent,
   TooltipTrigger,
-} from '@shared/components/ui/tooltip';
-import DialogDeleteTask from './DialogDeleteTask';
-import { Skeleton } from '@shared/components/ui/skeleton';
-import type { EnumUnit } from '@shared/api/hooks/enums/types';
-import { toast } from 'sonner';
-import { NotFound } from '@features/Errors';
-import { AdminJobActions } from '../admin/ui';
-import { useAdminJob, useExecuteAdminJobAction } from '../admin/hooks';
-import extractApiError from '@shared/api/extractApiError';
-import TaskDetails from './TaskDetails';
+} from "@shared/components/ui/tooltip";
+import DialogDeleteTask from "./DialogDeleteTask";
+import { Skeleton } from "@shared/components/ui/skeleton";
+import type { EnumUnit } from "@shared/api/hooks/enums/types";
+import { toast } from "sonner";
+import { NotFound } from "@features/Errors";
+import { AdminJobActions } from "../admin/ui";
+import { useAdminJob, useExecuteAdminJobAction } from "../admin/hooks";
+import extractApiError from "@shared/api/extractApiError";
+import TaskDetails from "./TaskDetails";
 
 function TaskPage() {
   const { id } = useParams();
   const navigate = useNavigate();
   const { data: { data: actions } = {}, isLoading: isLoadingActions } =
     useEnum<EnumUnit>({
-      name: 'job-actions',
+      name: "job-actions",
     });
   const { data: { data: statuses } = {} } = useEnum<
     EnumUnit<{ color: string }>
-  >({ name: 'job-status' });
+  >({ name: "job-status" });
   const {
     data: {
       data: { job: task, actions: accessActions, jobStatusDetails } = {},
@@ -51,7 +51,7 @@ function TaskPage() {
         return;
       }
 
-      toast.error('Произошла ошибка', {
+      toast.error("Произошла ошибка", {
         description: res.message,
       });
     } catch (error) {
@@ -64,7 +64,10 @@ function TaskPage() {
 
   const status = statuses?.[task?.jobStatus || 0];
   const actionKeys = Array.from(
-    new Set([...Object.keys(actions || {}), ...Object.keys(accessActions || {})])
+    new Set([
+      ...Object.keys(actions || {}),
+      ...Object.keys(accessActions || {}),
+    ]),
   );
 
   if (isLoading || !id) return null;
@@ -88,8 +91,8 @@ function TaskPage() {
               style={
                 status?.color
                   ? {
-                      backgroundColor: `#${status.color.replace('#', '')}36`,
-                      color: `#${status.color.replace('#', '')}`,
+                      backgroundColor: `#${status.color.replace("#", "")}36`,
+                      color: `#${status.color.replace("#", "")}`,
                     }
                   : undefined
               }
@@ -133,7 +136,7 @@ function TaskPage() {
                   </Button>
                 );
 
-                if (!forbidden) return <span key={key}>{button}</span>;
+                if (forbidden) return;
 
                 return (
                   <Tooltip key={key}>
@@ -144,7 +147,7 @@ function TaskPage() {
                     </TooltipTrigger>
                     <TooltipContent sideOffset={6}>
                       {availability?.why ||
-                        'Backend не разрешил действие в текущем статусе'}
+                        "Backend не разрешил действие в текущем статусе"}
                     </TooltipContent>
                   </Tooltip>
                 );
