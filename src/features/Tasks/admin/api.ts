@@ -54,6 +54,10 @@ export const adminJobsApi = {
     endpoints.adminJobs.bulkForceStatus.call<
       BulkJobOperationResult<BulkJobOperationItemResult>
     >(http, { body }),
+  bulkRemove: (body: BulkAdminJobIdsRequest) =>
+    endpoints.adminJobs.bulkRemove.call<
+      BulkJobOperationResult<BulkJobOperationItemResult>
+    >(http, { body }),
   getDeleted: () => endpoints.adminJobs.deleted.call<AdminJobDto[]>(http),
   getTemplates: () =>
     endpoints.adminJobs.templates.call<AdminJobTemplate[]>(http),

@@ -91,6 +91,12 @@ export const adminJobsEndpoints = E((e) => ({
     .response<BulkJobOperationResult<BulkJobOperationItemResult>>()
     .tag('admin-jobs:bulk-force-status')
     .deps(jobChanged),
+  bulkRemove: e
+    .post('bulkRemove', 'v1/admin/jobs/bulk/delete')
+    .body<BulkAdminJobIdsRequest>()
+    .response<BulkJobOperationResult<BulkJobOperationItemResult>>()
+    .tag('admin-jobs:bulk-remove')
+    .deps([...jobChanged, deleted]),
   deleted: e
     .get('deleted', 'v1/admin/jobs/deleted')
     .response<AdminJobDto[]>()

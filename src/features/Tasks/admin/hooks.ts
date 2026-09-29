@@ -142,6 +142,14 @@ export function useBulkForceAdminJobStatus() {
   });
 }
 
+export function useBulkRemoveAdminJobs() {
+  return useMutation({
+    mutationKey: [...endpoints.adminJobs.bulkRemove.__tags],
+    mutationFn: (body: BulkAdminJobIdsRequest) =>
+      adminJobsApi.bulkRemove(body),
+  });
+}
+
 export function useCreateAdminJobFromTemplate() {
   return useMutation({
     mutationKey: [...endpoints.adminJobs.createFromTemplate.__tags],

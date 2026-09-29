@@ -1,5 +1,13 @@
 import { useMemo, useState } from 'react';
-import { CheckCircle2, RadioTower, SlidersHorizontal, XCircle } from 'lucide-react';
+import {
+  CheckCircle2,
+  ChevronDown,
+  RadioTower,
+  ShieldAlert,
+  SlidersHorizontal,
+  Trash2,
+  XCircle,
+} from 'lucide-react';
 import { toast } from 'sonner';
 import extractApiError from '@shared/api/extractApiError';
 import { Badge } from '@shared/components/ui/badge';
@@ -22,8 +30,27 @@ import {
 } from '@shared/components/ui/select';
 import { Textarea } from '@shared/components/ui/textarea';
 import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from '@shared/components/ui/alert-dialog';
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuLabel,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from '@shared/components/ui/dropdown-menu';
+import {
   useAdminJobStatuses,
   useBulkForceAdminJobStatus,
+  useBulkRemoveAdminJobs,
   useBulkSimulateAdminJobCodesFromL2,
 } from '../hooks';
 import type {
@@ -48,14 +75,17 @@ interface ResultDialogState {
 interface AdminJobBulkActionsProps {
   selectedJobs: SelectedJob[];
   onSelectedIdsChange: (ids: ReadonlySet<AdminJobId>) => void;
+  onJobsDeleted?: (result: BulkJobOperationResult) => void;
 }
 
 export function AdminJobBulkActions({
   selectedJobs,
   onSelectedIdsChange,
+  onJobsDeleted,
 }: AdminJobBulkActionsProps) {
   const [forceOpen, setForceOpen] = useState(false);
   const [simulateOpen, setSimulateOpen] = useState(false);
+  const [deleteOpen, setDeleteOpen] = useState(false);
   const [resultDialog, setResultDialog] = useState<ResultDialogState | null>(null);
   const [targetStatus, setTargetStatus] = useState('');
   const [comment, setComment] = useState('');
@@ -63,13 +93,15 @@ export function AdminJobBulkActions({
   const statuses = useAdminJobStatuses(forceOpen);
   const bulkForceStatus = useBulkForceAdminJobStatus();
   const bulkSimulate = useBulkSimulateAdminJobCodesFromL2();
+  const bulkRemove = useBulkRemoveAdminJobs();
 
   const selectedIds = useMemo(
     () => selectedJobs.map((job) => job.id),
     [selectedJobs]
   );
   const isOverLimit = selectedIds.length > MAX_BULK_JOBS;
-  const isPending = bulkForceStatus.isPending || bulkSimulate.isPending;
+  const isPending =
+    bulkForceStatus.isPending || bulkSimulate.isPending || bulkRemove.isPending;
 
   if (selectedJobs.length === 0) return null;
 
@@ -131,28 +163,53 @@ export function AdminJobBulkActions({
     }
   };
 
+  const deleteJobs = async () => {
+    if (isOverLimit) return;
+
+    try {
+      const response = await bulkRemove.mutateAsync({ jobIds: selectedIds });
+      setDeleteOpen(false);
+      handleResult('Массовое удаление заданий', response.data);
+      onJobsDeleted?.(response.data);
+    } catch (error) {
+      showError(error);
+    }
+  };
+
   return (
     <>
       <div className="mx-1 h-7 w-px bg-border" />
       <Badge variant={isOverLimit ? 'destructive' : 'secondary'}>
         Выбрано: {selectedJobs.length}
       </Badge>
-      <Button
-        variant="outline"
-        disabled={isOverLimit || isPending}
-        onClick={() => setForceOpen(true)}
-      >
-        <SlidersHorizontal />
-        Установить статус
-      </Button>
-      <Button
-        variant="outline"
-        disabled={isOverLimit || isPending}
-        onClick={() => setSimulateOpen(true)}
-      >
-        <RadioTower />
-        Симулировать коды L2
-      </Button>
+      <DropdownMenu>
+        <DropdownMenuTrigger asChild>
+          <Button variant="outline" disabled={isOverLimit || isPending}>
+            <ShieldAlert />
+            Администрирование
+            <ChevronDown />
+          </Button>
+        </DropdownMenuTrigger>
+        <DropdownMenuContent align="start" className="min-w-64">
+          <DropdownMenuLabel>Массовые операции</DropdownMenuLabel>
+          <DropdownMenuItem onSelect={() => setForceOpen(true)}>
+            <SlidersHorizontal />
+            Установить статус
+          </DropdownMenuItem>
+          <DropdownMenuItem onSelect={() => setSimulateOpen(true)}>
+            <RadioTower />
+            Симулировать коды L2
+          </DropdownMenuItem>
+          <DropdownMenuSeparator />
+          <DropdownMenuItem
+            variant="destructive"
+            onSelect={() => setDeleteOpen(true)}
+          >
+            <Trash2 />
+            Удалить задания
+          </DropdownMenuItem>
+        </DropdownMenuContent>
+      </DropdownMenu>
       <Button
         variant="ghost"
         disabled={isPending}
@@ -244,6 +301,38 @@ export function AdminJobBulkActions({
           </DialogFooter>
         </DialogContent>
       </Dialog>
+
+      <AlertDialog
+        open={deleteOpen}
+        onOpenChange={(open) => !bulkRemove.isPending && setDeleteOpen(open)}
+      >
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>
+              Удалить выбранные задания ({selectedJobs.length})?
+            </AlertDialogTitle>
+            <AlertDialogDescription>
+              Каждое задание будет удалено независимо. Ошибка при удалении
+              одного задания не отменит успешно выполненные операции.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel disabled={bulkRemove.isPending}>
+              Отмена
+            </AlertDialogCancel>
+            <AlertDialogAction
+              disabled={bulkRemove.isPending}
+              className="bg-destructive text-white hover:bg-destructive/90"
+              onClick={(event) => {
+                event.preventDefault();
+                void deleteJobs();
+              }}
+            >
+              {bulkRemove.isPending ? 'Удаление…' : 'Удалить'}
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
 
       <Dialog
         open={resultDialog !== null}
