@@ -20,11 +20,16 @@ interface EntityListProps<T> {
   hiddenCreate?: boolean;
   hiddenColumns?: VirtualTableProps<T>['columnVisibility'];
   renderEmpty?: VirtualTableProps<T>['renderEmpty'];
+  footerToolbar?: React.ReactNode;
 
   search?: {
     has?: boolean;
     placeholder?: string;
-    local?: {
+    value?: string;
+    onChange?: (value: string) => void;
+    disabled?: boolean;
+    delay?: number;
+    local?: false | {
       keys: Array<keyof T>;
       strategies?: (
         | SearchStrategy<LevenshteinOptions>
@@ -45,6 +50,7 @@ export function EntityList<T>({
   hiddenCreate = false,
   hiddenColumns,
   renderEmpty,
+  footerToolbar,
   search,
 }: EntityListProps<T>) {
   const { has = true, local } = {
@@ -52,7 +58,9 @@ export function EntityList<T>({
     ...search,
   };
 
-  const [query, setQuery] = useState('');
+  const [internalQuery, setInternalQuery] = useState('');
+  const query = search?.value ?? internalQuery;
+  const setQuery = search?.onChange ?? setInternalQuery;
   const panelRef = useRef<HTMLDivElement>(null);
   const [heightPx, setHeightPx] = useState(400);
 
@@ -111,7 +119,8 @@ export function EntityList<T>({
             onPaste={(v) => {
               setQuery(v.replaceAll(/\s+/g, ' ').trim());
             }}
-            delay={800}
+            disabled={search?.disabled}
+            delay={search?.delay ?? 800}
             className="max-w-[300px]!"
           />
         )}
@@ -143,6 +152,7 @@ export function EntityList<T>({
           valueSearch={query}
           renderEmpty={renderEmpty}
           heightPx={heightPx}
+          footerToolbar={footerToolbar}
         />
       </CardContent>
     </Card>

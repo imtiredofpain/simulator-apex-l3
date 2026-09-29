@@ -3,6 +3,7 @@ import { endpoints } from '@shared/api/endpoints';
 import { adminJobsApi } from './api';
 import type {
   AdminJobId,
+  AdminJobFilterRequest,
   AdminJobStatus,
   BulkAdminJobIdsRequest,
   BulkForceAdminJobStatusRequest,
@@ -12,10 +13,10 @@ import type {
   ForceAdminJobStatusRequest,
 } from './types';
 
-export function useAdminJobs() {
+export function useAdminJobs(filter: AdminJobFilterRequest = {}) {
   return useQuery({
-    queryKey: [...endpoints.adminJobs.list.__tags],
-    queryFn: adminJobsApi.getAll,
+    queryKey: [...endpoints.adminJobs.list.__tags, filter],
+    queryFn: () => adminJobsApi.getAll(filter),
   });
 }
 

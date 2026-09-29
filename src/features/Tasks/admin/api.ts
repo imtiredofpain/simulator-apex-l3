@@ -2,6 +2,7 @@ import { endpoints, http } from '@shared/api/endpoints';
 import type {
   AdminJobDetails,
   AdminJobDto,
+  AdminJobFilterRequest,
   AdminJobId,
   AdminJobStatus,
   AdminJobStatusInfo,
@@ -26,7 +27,8 @@ import type {
 } from './types';
 
 export const adminJobsApi = {
-  getAll: () => endpoints.adminJobs.list.call<AdminJobDto[]>(http),
+  getAll: (filter: AdminJobFilterRequest = {}) =>
+    endpoints.adminJobs.list.call<AdminJobDto[]>(http, { query: filter }),
   getById: (id: AdminJobId) =>
     endpoints.adminJobs.byId.call<AdminJobDetails>(http, { params: { id } }),
   remove: (id: AdminJobId) =>

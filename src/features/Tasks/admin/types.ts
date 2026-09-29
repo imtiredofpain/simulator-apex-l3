@@ -1,6 +1,14 @@
 export type AdminJobId = number;
 export type AdminJobStatus = number;
 
+export interface AdminJobFilterRequest {
+  page?: number;
+  size?: number;
+  status?: AdminJobStatus;
+  lineId?: number[];
+  searchQuery?: string;
+}
+
 export interface AdminJobStatusDetails {
   enumKey: AdminJobStatus;
   description: string;

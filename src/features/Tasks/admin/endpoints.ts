@@ -2,6 +2,7 @@ import { defineEndpoints, tag } from '@shared/api/endpoints/builder';
 import type {
   AdminJobDetails,
   AdminJobDto,
+  AdminJobFilterRequest,
   AdminJobId,
   AdminJobStatus,
   AdminJobStatusInfo,
@@ -46,6 +47,7 @@ const jobChanged = [
 export const adminJobsEndpoints = E((e) => ({
   list: e
     .get('list', 'v1/admin/jobs')
+    .query<AdminJobFilterRequest>()
     .response<AdminJobDto[]>()
     .tag('admin-jobs:list'),
   byId: e
